@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+/*
+ * Chart and dashboard tokens (light mode). Values come from the validated data-viz palette:
+ * series blue passes the lightness, chroma and 3:1 contrast checks on the surface below.
+ * Status colours are reserved for good / needs-improvement / poor and are always paired with a
+ * shape and a text label, never colour alone.
+ * Dark mode is not built yet: the whole app is light-only for now.
+ * `static` makes Tailwind always emit these as CSS variables, so Recharts SVG can use var(--color-vz-*).
+ */
+@theme static {
+  --color-vz-surface: #fcfcfb;
+  --color-vz-page: #f9f9f7;
+  --color-vz-ink: #0b0b0b;
+  --color-vz-ink-2: #52514e;
+  --color-vz-muted: #898781;
+  --color-vz-grid: #e1e0d9;
+  --color-vz-axis: #c3c2b7;
+  --color-vz-border: rgb(11 11 11 / 0.1);
+  --color-vz-series: #2a78d6;
+  --color-vz-good: #0ca30c;
+  --color-vz-warn: #fab219;
+  --color-vz-bad: #d03b3b;
+}
