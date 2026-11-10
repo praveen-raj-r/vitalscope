@@ -45,7 +45,7 @@ export function formatValue(metric: MetricKey, value: number): string {
 
 /** Shorter form for chart axes. */
 export function formatAxis(metric: MetricKey, value: number): string {
-  if (metric === "LCP") return `${+(value / 1000).toFixed(1)} s`;
+  if (metric === "LCP") return `${+(value / 1000).toFixed(2)} s`;
   if (metric === "INP") return `${Math.round(value)} ms`;
   return `${+value.toFixed(2)}`;
 }
