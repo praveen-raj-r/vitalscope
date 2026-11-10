@@ -70,10 +70,16 @@ describe("parseFilters", () => {
 });
 
 describe("filtersToParams", () => {
-  it("omits defaults and keeps unrelated params", () => {
+  it("always writes days, drops empty device/release and keeps unrelated params", () => {
     const base = new URLSearchParams("sort=lcp&days=30&device=mobile");
     const out = filtersToParams({ days: 7, device: null, release: "r1" }, base);
-    expect(out.toString()).toBe("sort=lcp&release=r1");
+    expect(out.toString()).toBe("sort=lcp&days=7&release=r1");
+  });
+  it("round-trips through parseFilters, including a page default that differs from 7", () => {
+    const filters = { days: 7 as const, device: "tablet" as const, release: null };
+    const params = Object.fromEntries(filtersToParams(filters));
+    expect(parseFilters(params, 30)).toEqual(filters);
+    expect(parseFilters({}, 30).days).toBe(30);
   });
   it("detects active filters", () => {
     expect(hasActiveFilters({ days: 30, device: null, release: null })).toBe(false);

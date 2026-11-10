@@ -18,6 +18,7 @@ export function SiteTabs({ siteId }: { siteId: string }) {
   const tabs = [
     { label: "Overview", href: base, active: pathname === base },
     { label: "Pages", href: `${base}/pages`, active: pathname.startsWith(`${base}/pages`) },
+    { label: "Releases", href: `${base}/releases`, active: pathname.startsWith(`${base}/releases`) },
   ];
 
   return (
