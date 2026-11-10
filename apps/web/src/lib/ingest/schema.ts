@@ -54,8 +54,14 @@ function toIso(ts: number): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+/**
+ * Rows are unique per (page view, metric). If one payload repeats a metric for the same page view,
+ * the last one wins here, because a single upsert cannot touch the same row twice.
+ */
 export function toRows(siteId: string, reports: Report[]): EventRow[] {
-  return reports.map((r) => ({
+  const latest = new Map<string, Report>();
+  for (const r of reports) latest.set(`${r.pageViewId}\u0000${r.metric}`, r);
+  return [...latest.values()].map((r) => ({
     site_id: siteId,
     page_view_id: r.pageViewId,
     metric: r.metric,
