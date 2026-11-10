@@ -1,4 +1,4 @@
 export const GITHUB_URL = "https://github.com/praveen-raj-r/vitalscope";
 
-/** Set to true once @praveen-raj/vitalscope has been published to npm. Until then the landing page says it is not available yet. */
-export const NPM_PUBLISHED = false;
+/** True once @praveen-raj/vitalscope is on npm (0.1.0 published 2026-11-10). When false, the landing page says it is not available yet. */
+export const NPM_PUBLISHED = true;
