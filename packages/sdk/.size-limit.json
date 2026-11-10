@@ -1,0 +1,4 @@
+[
+  { "name": "ESM (gzip)", "path": "dist/index.js", "limit": "5 KB", "gzip": true },
+  { "name": "IIFE (gzip)", "path": "dist/vitalscope.global.js", "limit": "5 KB", "gzip": true }
+]
