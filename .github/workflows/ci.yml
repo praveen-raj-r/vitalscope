@@ -32,7 +32,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned: resolving "latest" calls the GitHub API, which rate-limited CI once, and a new major
+          # release could change behaviour under us. Bump on purpose.
+          version: 3.1.0
       # Only Postgres is needed: it applies the migrations and seed, and the tests run in the database.
       # (`supabase start` also starts mail/API containers, which clashed on a port in CI.)
       - name: Start local Postgres and apply migrations
