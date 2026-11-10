@@ -24,8 +24,12 @@ document.getElementById("slow")!.addEventListener("click", () => {
 });
 
 document.getElementById("shift")!.addEventListener("click", () => {
-  const box = document.createElement("div");
-  box.style.cssText = "height:8rem;background:#fbbf24;margin:1rem 0";
-  box.textContent = "Inserted without reserved space";
-  document.getElementById("hero")!.before(box);
+  // Browsers ignore layout shifts within 500 ms of a user input (they count as expected),
+  // so the shift is delayed to be counted in CLS.
+  setTimeout(() => {
+    const box = document.createElement("div");
+    box.style.cssText = "height:8rem;background:#fbbf24;margin:1rem 0";
+    box.textContent = "Inserted without reserved space";
+    document.getElementById("hero")!.before(box);
+  }, 1000);
 });

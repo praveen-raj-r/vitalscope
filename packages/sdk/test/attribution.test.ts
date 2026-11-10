@@ -40,6 +40,27 @@ describe("pickAttribution", () => {
     );
     expect(out).toEqual({ target: "button#b", eventType: "click" });
   });
+  it("INP: takes the target from an entry that has one when the slowest entry has none", () => {
+    document.body.innerHTML = `<button id="a"></button>`;
+    const a = document.querySelector("button");
+    const out = pickAttribution(
+      m("INP", [
+        { name: "pointerup", duration: 320, target: null },
+        { name: "click", duration: 300, target: a },
+      ]),
+    );
+    expect(out).toEqual({ target: "button#a", eventType: "pointerup" });
+  });
+  it("INP: falls back to the entry targetSelector when no entry has a node", () => {
+    const out = pickAttribution(
+      m("INP", [{ name: "pointerdown", duration: 32, target: null, targetSelector: "button#shift" }]),
+    );
+    expect(out).toEqual({ target: "button#shift", eventType: "pointerdown" });
+  });
+  it("INP: reports only the event type when nothing identifies the target", () => {
+    const out = pickAttribution(m("INP", [{ name: "pointerdown", duration: 32, target: null }]));
+    expect(out).toEqual({ eventType: "pointerdown" });
+  });
   it("CLS: largest source of the worst shift", () => {
     document.body.innerHTML = `<p id="s"></p><p id="l"></p>`;
     const [s, l] = Array.from(document.querySelectorAll("p"));
