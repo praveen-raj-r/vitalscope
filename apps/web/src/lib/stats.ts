@@ -1,10 +1,18 @@
-import type { createClient } from "./supabase/server";
 import type { Filters } from "./filters";
 import { HISTOGRAM_BINS } from "./histogram";
 import type { MetricKey } from "./vitals";
 import type { PageRow } from "./pages-table";
 
-type Supabase = Awaited<ReturnType<typeof createClient>>;
+/**
+ * All the dashboard queries need from a Supabase client is to call a database function. Typing it this way lets the
+ * signed-in dashboard pass the user's client (row-level security applies) and the public demo pass a server-only
+ * client that is only ever used with the demo site's fixed id.
+ */
+export interface RpcClient {
+  rpc(fn: string, args?: Record<string, unknown>): PromiseLike<{ data: unknown; error: { message: string } | null }>;
+}
+
+type Supabase = RpcClient;
 
 export interface OverviewRow {
   metric: string;

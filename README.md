@@ -19,6 +19,18 @@ GitHub login needs an OAuth app (callback URL: `<supabase url>/auth/v1/callback`
 
 To see the dashboard filled in without real traffic, run [`supabase/sample-data.sql`](supabase/sample-data.sql) by hand (set your email at the top first). It creates a separate site called "Sample data" with about 2,600 invented events, so real counts stay clean. Remove it with `delete from vitalscope.sites where name = 'Sample data';`. All of its numbers are synthetic and must never be quoted as real results.
 
+### Public demo and landing page
+
+`/` is the landing page and `/demo` is a read-only copy of the dashboard on the sample data, with no sign-in. The demo is turned on by setting `DEMO_SITE_ID` (the id of the "Sample data" site) in the server environment; without it `/demo` says it is not available. **Only ever point it at synthetic data**, because it reads that site with the service role.
+
+### End-to-end test
+
+```bash
+pnpm e2e      # builds the SDK, starts the demo page and a stub ingest server, and drives a real browser
+```
+
+Locally it uses the Microsoft Edge you already have installed (nothing to download); set `PW_CHANNEL=chrome` or `PW_CHANNEL=` (Playwright's Chromium, after `pnpm --filter @vitalscope/e2e exec playwright install chromium`) to change that. In CI it runs on pushes to `main`.
+
 ### Daily rollups and retention
 
 `GET /api/cron/daily` rolls up yesterday (and the day before, again, to absorb late updates), rolls up any finished day a missed run left behind, and only then deletes raw events older than 30 days. It is protected by `CRON_SECRET` (any long random string, for example `openssl rand -hex 32`) sent as `Authorization: Bearer <secret>`; without a secret it returns 503. [`apps/web/vercel.json`](apps/web/vercel.json) schedules it for 00:15 UTC once deployed (Vercel Cron only runs on a deployed app, and sends the bearer token itself when `CRON_SECRET` is set in the project).
@@ -60,6 +72,11 @@ To try it locally, set `CRON_SECRET` in `apps/web/.env.local`, restart the dev s
 - **Retention only deletes events from days that already have rollups** and keeps the last 30 whole UTC days, matching the dashboard's longest range. A day that was never rolled up is kept rather than lost. The cron job runs retention last and never reaches it if a rollup step fails. Trade-off: a day that can never be rolled up (for example a failing rollup) makes its raw events stay until it is fixed.
 - **`rollup_day` refuses today and can safely be run again for the same day** (it replaces the day's rows). The write and delete functions are executable by the service role only; the dashboard cannot call them.
 - **The cron secret is compared in constant time** (both sides hashed to equal length, then `timingSafeEqual`), and errors from the job are logged but never returned in the response.
+- **The public demo reads the sample site with the service role, never with a site id from the URL.** The alternative (making the sample site publicly readable through row-level security) would expose its raw events to anyone holding the public API key and would need a flag on `sites` that an owner could flip by accident. Here the demo routes only ever use the id in `DEMO_SITE_ID`, which must be a valid UUID or the demo is off. Trade-off: a service-role client lives in a public route, so the safety rests on that one fixed id; the page detail route's `path` is only a filter within that site. Each public request also costs database queries (the demo is not cached): [METRIC NEEDED] when it is deployed.
+- **The signed-in dashboard and the demo share the same view components** (`components/views/*`), which take a small `{ rpc }` client and a `basePath`. The two cannot drift apart, and the dashboard's own tests of logic cover both. Trade-off: the views are a seam to remember when changing a page.
+- **The session-refresh proxy now runs only on `/app`, `/login` and `/auth`,** so visitors to the landing page, the demo, `/api/ingest` and `/api/cron` never trigger a Supabase call.
+- **The end-to-end test runs the real ingest handler against an in-memory store, not a database** (`apps/e2e/server/stub-ingest.ts`). It proves the part that is hard to unit test (a real browser, the real SDK, a beacon sent while the page is left, the origin check, the size cap) with no infrastructure. Trade-off: it does not prove the database insert or the dashboard; those are covered by the pgTAP tests and the unit tests, not by a browser test. The spec's "event appears in the dashboard" would need a full local Supabase stack in CI, which clashed on a port earlier.
+- **The landing page says the package is not published yet** (`NPM_PUBLISHED` in `lib/site-config.ts`) until it is, rather than showing an install snippet that cannot work.
 - **`web-vitals` is the SDK's only dependency** (approved). Dev-only: tsup, size-limit, vitest, happy-dom.
 - **Payload is sent as a plain string (`text/plain`)** with `sendBeacon`, falling back to `fetch(..., { keepalive: true })`. This avoids a CORS preflight, which `application/json` would trigger. Trade-off: the server parses JSON manually (the spec already requires this).
 - **One beacon per flush, capped at 16 KB (counted in UTF-8 bytes).** Reports that do not fit stay queued for the next flush; a single report that can never fit is dropped. A newer report of the same metric replaces an unsent older one (CLS and INP can update).
