@@ -15,6 +15,10 @@ pnpm --filter @vitalscope/web dev
 
 GitHub login needs an OAuth app (callback URL: `<supabase url>/auth/v1/callback`) and `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` set for the Supabase CLI.
 
+### Sample data
+
+To see the dashboard filled in without real traffic, run [`supabase/sample-data.sql`](supabase/sample-data.sql) by hand (set your email at the top first). It creates a separate site called "Sample data" with about 2,600 invented events, so real counts stay clean. Remove it with `delete from vitalscope.sites where name = 'Sample data';`. All of its numbers are synthetic and must never be quoted as real results.
+
 ## Decisions
 
 - **Next.js 16 `proxy.ts`** (renamed from `middleware`) only refreshes the session cookie. It does not authorize. Pages check the session on the server, and Row-Level Security is the real access boundary.
