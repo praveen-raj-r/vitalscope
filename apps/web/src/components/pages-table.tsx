@@ -32,12 +32,12 @@ const COLUMNS: { key: SortKey; label: string }[] = [
 
 /** Column headers are links, so sorting works with the keyboard and without client JavaScript. */
 export function PagesTable({
-  siteId,
+  basePath,
   rows,
   sort,
   filters,
 }: {
-  siteId: string;
+  basePath: string;
   rows: PageRow[];
   sort: { key: SortKey; dir: SortDir };
   filters: Filters;
@@ -46,7 +46,7 @@ export function PagesTable({
     const params = filtersToParams(filters);
     params.set("sort", key);
     params.set("dir", nextDir(sort, key));
-    return `/app/sites/${siteId}/pages?${params.toString()}`;
+    return `${basePath}/pages?${params.toString()}`;
   };
 
   return (
@@ -77,7 +77,7 @@ export function PagesTable({
             <tr key={r.path} className="border-t border-vz-grid">
               <th scope="row" className="max-w-xs truncate px-4 py-3 font-mono text-xs font-normal text-vz-ink" title={r.path}>
                 <Link
-                  href={`/app/sites/${siteId}/pages/${encodePathId(r.path)}?${filtersToParams(filters).toString()}`}
+                  href={`${basePath}/pages/${encodePathId(r.path)}?${filtersToParams(filters).toString()}`}
                   className="underline hover:text-vz-series"
                 >
                   {r.path}

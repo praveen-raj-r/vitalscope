@@ -8,6 +8,7 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "build": "pnpm -r --if-present build",
-    "size": "pnpm --filter @vitalscope/sdk size"
+    "size": "pnpm --filter @vitalscope/sdk size",
+    "e2e": "pnpm --filter @vitalscope/sdk build && pnpm --filter @vitalscope/e2e e2e"
   }
 }
