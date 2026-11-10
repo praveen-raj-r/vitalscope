@@ -1,7 +1,7 @@
 -- pgTAP: dashboard stats functions return correct p75 / counts, honour filters, and respect RLS.
 -- Run: npx supabase test db
 begin;
-select plan(14);
+select plan(18);
 
 insert into auth.users (id, instance_id, aud, role, email)
 values
@@ -24,8 +24,24 @@ insert into vitalscope.events (site_id, page_view_id, metric, value, rating, pat
   ('30000000-0000-0000-0000-0000000000a1', 'pv6', 'LCP', 5000, 'poor',              '/old',    'desktop', 'r1', now() - interval '10 days'),
   ('30000000-0000-0000-0000-0000000000b1', 'pvb', 'LCP', 7000, 'poor',              '/',       'desktop', null, now());
 
+-- Window boundary: two INP events on path "/edge", exactly at the start of the 7 day window (counted) and one
+-- second before it (not counted). They use their own metric and path, so the assertions below are unaffected.
+insert into vitalscope.events (site_id, page_view_id, metric, value, rating, path, device, release, received_at) values
+  ('30000000-0000-0000-0000-0000000000a1', 'pv-edge-in',  'INP', 100, 'good', '/edge', 'desktop', 'r1', vitalscope.window_start(7)),
+  ('30000000-0000-0000-0000-0000000000a1', 'pv-edge-out', 'INP', 100, 'good', '/edge', 'desktop', 'r1', vitalscope.window_start(7) - interval '1 second');
+
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
+
+-- The window is whole UTC days: it starts at midnight UTC, between 6 and 7 days ago (today is partial).
+select is((vitalscope.window_start(7) at time zone 'utc')::time, '00:00:00'::time,
+          'the 7 day window starts at midnight UTC');
+select ok(now() - vitalscope.window_start(7) >= interval '6 days' and now() - vitalscope.window_start(7) < interval '7 days',
+          'the 7 day window covers today plus the 6 previous days');
+select is((select samples::int from vitalscope.site_overview('30000000-0000-0000-0000-0000000000a1', 7) where metric = 'INP'),
+          1, 'an event exactly at the window start is counted, one second earlier is not');
+select is((select samples::int from vitalscope.site_overview('30000000-0000-0000-0000-0000000000a1', 30) where metric = 'INP'),
+          2, 'both boundary events fall inside a 30 day window');
 
 -- Overview, 7 days, no filters: 5 LCP samples (1000,2000,3000,4000,9000); p75 is the 4th value.
 select is((select samples::int from vitalscope.site_overview('30000000-0000-0000-0000-0000000000a1', 7) where metric = 'LCP'),
