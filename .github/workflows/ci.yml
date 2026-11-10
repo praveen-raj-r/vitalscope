@@ -33,8 +33,10 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Start local Supabase and run migrations
-        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,inbucket
+      # Only Postgres is needed: it applies the migrations and seed, and the tests run in the database.
+      # (`supabase start` also starts mail/API containers, which clashed on a port in CI.)
+      - name: Start local Postgres and apply migrations
+        run: supabase db start
         env:
           GITHUB_CLIENT_ID: ci
           GITHUB_CLIENT_SECRET: ci
