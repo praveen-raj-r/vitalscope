@@ -4,7 +4,7 @@
     "noEmit": true,
     "types": ["vite/client"],
     // Typecheck against the SDK source so a fresh clone works without building packages/sdk first.
-    "paths": { "@vitalscope/sdk": ["../../packages/sdk/src/index.ts"] }
+    "paths": { "@praveen-raj/vitalscope": ["../../packages/sdk/src/index.ts"] }
   },
   "include": ["src", "vite.config.ts"]
 }

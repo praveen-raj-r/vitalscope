@@ -1,4 +1,4 @@
-import { init } from "@vitalscope/sdk";
+import { init } from "@praveen-raj/vitalscope";
 
 // Configure with ?siteKey=...&endpoint=... or VITE_SITE_KEY / VITE_ENDPOINT.
 const params = new URLSearchParams(location.search);

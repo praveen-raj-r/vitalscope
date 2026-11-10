@@ -1,15 +1,15 @@
-# @vitalscope/sdk
+# @praveen-raj/vitalscope
 
 A tiny browser SDK that measures real-user Core Web Vitals (LCP, INP, CLS, FCP, TTFB) and sends them to a [Vitalscope](https://github.com/praveen-raj-r/vitalscope) ingest endpoint. Under 5 KB gzipped, one dependency (`web-vitals`), and `init()` never throws.
 
 ## Install
 
 ```sh
-npm install @vitalscope/sdk
+npm install @praveen-raj/vitalscope
 ```
 
 ```ts
-import { init } from "@vitalscope/sdk";
+import { init } from "@praveen-raj/vitalscope";
 
 init({
   siteKey: "vs_pub_...", // public key from your dashboard
@@ -20,7 +20,7 @@ init({
 Or without a bundler:
 
 ```html
-<script src="https://unpkg.com/@vitalscope/sdk/dist/vitalscope.global.js"></script>
+<script src="https://unpkg.com/@praveen-raj/vitalscope/dist/vitalscope.global.js"></script>
 <script>
   Vitalscope.init({ siteKey: "vs_pub_..." });
 </script>

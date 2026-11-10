@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "A tiny open-source SDK and a dashboard that show how fast your pages are for real visitors: p75 LCP, INP and CLS, by page, device and release.",
 };
 
-const SNIPPET = `import { init } from '@vitalscope/sdk';
+const SNIPPET = `import { init } from '@praveen-raj/vitalscope';
 
 init({
   siteKey: 'vs_pub_your_site_key',

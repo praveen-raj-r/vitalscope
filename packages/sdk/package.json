@@ -1,5 +1,5 @@
 {
-  "name": "@vitalscope/sdk",
+  "name": "@praveen-raj/vitalscope",
   "version": "0.1.0",
   "description": "Tiny real-user Core Web Vitals SDK (LCP, INP, CLS, FCP, TTFB) under 5 KB gzipped",
   "license": "MIT",

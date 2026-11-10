@@ -7,7 +7,7 @@ const CI = !!process.env.CI;
  * Playwright's own Chromium (installed with `playwright install chromium`). Override with PW_CHANNEL
  * (for example PW_CHANNEL=chrome, or PW_CHANNEL= to use Playwright's Chromium).
  *
- * Both servers are started for you. Build the SDK first (`pnpm --filter @vitalscope/sdk build`): the demo page imports it.
+ * Both servers are started for you. Build the SDK first (`pnpm --filter @praveen-raj/vitalscope build`): the demo page imports it.
  */
 const channel = process.env.PW_CHANNEL !== undefined ? process.env.PW_CHANNEL || undefined : CI ? undefined : "msedge";
 

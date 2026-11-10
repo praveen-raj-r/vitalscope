@@ -24,7 +24,7 @@ export const createSiteSchema = z.object({
 });
 
 export function installSnippet(siteKey: string, endpoint: string): string {
-  return `import { init } from '@vitalscope/sdk';\n\ninit({ siteKey: '${siteKey}', endpoint: '${endpoint}' });`;
+  return `import { init } from '@praveen-raj/vitalscope';\n\ninit({ siteKey: '${siteKey}', endpoint: '${endpoint}' });`;
 }
 
 export function isUuid(value: string): boolean {

@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vitalscope/sdk": "workspace:^"
+    "@praveen-raj/vitalscope": "workspace:^"
   },
   "devDependencies": {
     "typescript": "~5.9",
