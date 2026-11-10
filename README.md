@@ -39,3 +39,10 @@ Measured by `pnpm size` (size-limit, minified + gzip, including `web-vitals`), a
 |---|---|---|
 | ESM | 4.65 KB | 5 KB |
 | IIFE | 4.78 KB | 5 KB |
+
+### Shared Supabase project
+
+- **Vitalscope uses a `vitalscope` schema inside the shared `my-projects` Supabase project** (like `placementkit` for another app), instead of the separate project the spec describes. Trade-offs: the 500 MB free-tier database and the auth user list are shared with the other apps, so the 30-day retention job matters more; RLS still isolates data per user. All Vitalscope tables are referenced as `vitalscope.*`, and the clients set `db: { schema: "vitalscope" }`.
+- On the hosted project, add `vitalscope` to **Project Settings -> API -> Exposed schemas**, or the API returns "schema not found". Locally this is already set in `supabase/config.toml`.
+- Custom schemas get no automatic grants, so the migration grants only what each role needs (`anon` gets nothing).
+- Before `supabase db push`, run `supabase migration list` against the linked project: its migration history is shared with the other apps.

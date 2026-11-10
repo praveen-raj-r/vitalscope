@@ -3,7 +3,7 @@ project_id = "vitalscope"
 [api]
 enabled = true
 port = 54321
-schemas = ["public"]
+schemas = ["public", "vitalscope"]
 
 [db]
 port = 54322
