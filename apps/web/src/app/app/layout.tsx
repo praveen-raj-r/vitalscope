@@ -6,7 +6,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/login");
   return (
-    <div className="mx-auto max-w-3xl p-8">
+    <div className="mx-auto max-w-5xl p-8">
       <header className="mb-8 flex items-center justify-between">
         <span className="font-semibold">Vitalscope</span>
         <form action="/auth/signout" method="post">

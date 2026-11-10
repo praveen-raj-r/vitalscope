@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AddSiteForm } from "./add-site-form";
 
@@ -22,7 +23,9 @@ export default async function SitesPage() {
         <ul className="mt-4 space-y-2">
           {sites?.map((s) => (
             <li key={s.id} className="rounded border p-3">
-              <div className="font-medium">{s.name}</div>
+              <Link href={`/app/sites/${s.id}`} className="font-medium underline">
+                {s.name}
+              </Link>
               <code className="text-xs text-neutral-600">{s.site_key}</code>
               <div className="text-xs text-neutral-500">{s.allowed_origins.join(", ")}</div>
             </li>
