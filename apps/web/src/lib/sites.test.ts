@@ -32,3 +32,12 @@ describe("installSnippet", () => {
     expect(s).toContain("https://x.dev/api/ingest");
   });
 });
+
+describe("isUuid", () => {
+  it("accepts UUIDs and rejects anything else", async () => {
+    const { isUuid } = await import("./sites");
+    expect(isUuid("30000000-0000-0000-0000-0000000000a1")).toBe(true);
+    expect(isUuid("not-a-uuid")).toBe(false);
+    expect(isUuid("30000000-0000-0000-0000-0000000000a1; drop table")).toBe(false);
+  });
+});
