@@ -1,6 +1,14 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
+import { useEffect } from "react";
+
 export default function SiteError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  // An error boundary swallows the error, so it has to be reported from here.
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <div role="alert" className="rounded-lg border border-vz-border bg-vz-surface p-6">
       <h2 className="text-lg font-semibold text-vz-ink">Could not load this view</h2>

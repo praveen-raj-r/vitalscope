@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { handleCron } from "@/lib/cron";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -15,6 +16,7 @@ async function call(name: string, args: Record<string, unknown> = {}): Promise<n
 export async function GET(request: Request) {
   return handleCron(request, {
     secret: process.env.CRON_SECRET,
+    onError: (e) => Sentry.captureException(e),
     deps: {
       rollupDay: (day) => call("rollup_day", { p_day: day }),
       rollupMissing: () => call("rollup_missing"),
