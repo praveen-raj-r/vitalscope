@@ -3,7 +3,7 @@ import { clip, stripQuery } from "./util";
 
 // Minimal shapes of the browser entries we read (not all are in lib.dom for every TS version).
 interface LcpEntry { element?: Element | null; url?: string }
-interface EventEntry { name: string; duration: number; target?: Node | null }
+interface EventEntry { name: string; duration: number; target?: Node | null; targetSelector?: string }
 interface Shift { value: number; sources?: { node?: Node | null; currentRect: DOMRectReadOnly }[] }
 
 /** Short CSS-like path: stops at an id, at most 4 levels, e.g. `main > div.hero > img`. */
@@ -39,9 +39,15 @@ export function pickAttribution(metric: Metric): Record<string, string> | undefi
     put("target", selectorOf(last?.element));
     if (last?.url && !last.url.startsWith("data:")) put("url", stripQuery(last.url));
   } else if (metric.name === "INP") {
+    // Some events of one interaction (e.g. pointerup) have no target node, so the target comes from
+    // the slowest entry that has one, while the event type comes from the slowest entry overall.
     let slowest: EventEntry | undefined;
-    for (const e of entries as EventEntry[]) if (!slowest || e.duration > slowest.duration) slowest = e;
-    put("target", selectorOf(slowest?.target));
+    let slowestWithTarget: EventEntry | undefined;
+    for (const e of entries as EventEntry[]) {
+      if (!slowest || e.duration > slowest.duration) slowest = e;
+      if (e.target && (!slowestWithTarget || e.duration > slowestWithTarget.duration)) slowestWithTarget = e;
+    }
+    put("target", selectorOf(slowestWithTarget?.target) ?? (entries as EventEntry[]).find((e) => e.targetSelector)?.targetSelector);
     put("eventType", slowest?.name);
   } else if (metric.name === "CLS") {
     let worst: Shift | undefined;
