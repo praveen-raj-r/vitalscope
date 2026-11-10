@@ -1,5 +1,5 @@
 import { TrendChart, type TrendPoint } from "./trend-chart";
-import { formatDay, formatValue, hasEnoughData, METRIC_NAMES, type MetricKey } from "@/lib/vitals";
+import { formatDay, formatValue, hasEnoughData, METRIC_NAMES, THRESHOLDS, type MetricKey } from "@/lib/vitals";
 
 export function TrendCard({ metric, points, days }: { metric: MetricKey; points: TrendPoint[]; days: number }) {
   return (
@@ -7,7 +7,10 @@ export function TrendCard({ metric, points, days }: { metric: MetricKey; points:
       <h3 className="text-sm font-medium text-vz-ink">
         {METRIC_NAMES[metric]} ({metric}) p75 by day
       </h3>
-      <p className="text-xs text-vz-ink-2">Last {days} days · lower is better</p>
+      <p className="text-xs text-vz-ink-2">
+        Last {days} days · lower is better · the grey line marks the &ldquo;good&rdquo; limit (up to{" "}
+        {formatValue(metric, THRESHOLDS[metric][0])})
+      </p>
 
       {points.length === 0 ? (
         <p className="mt-6 text-sm text-vz-ink-2">No data for this period.</p>

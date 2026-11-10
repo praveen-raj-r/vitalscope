@@ -89,12 +89,6 @@ export function TrendChart({ metric, points }: { metric: MetricKey; points: Tren
             stroke="var(--color-vz-muted)"
             strokeWidth={1}
             ifOverflow="extendDomain"
-            label={{
-              value: `Good ≤ ${formatValue(metric, THRESHOLDS[metric][0])}`,
-              position: "insideTopRight",
-              fill: "var(--color-vz-muted)",
-              fontSize: 11,
-            }}
           />
           <Tooltip
             cursor={{ stroke: "var(--color-vz-axis)", strokeWidth: 1 }}
