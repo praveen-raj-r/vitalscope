@@ -1,0 +1,40 @@
+{
+  "name": "@vitalscope/sdk",
+  "version": "0.0.0",
+  "description": "Tiny real-user Core Web Vitals SDK",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "size": "size-limit"
+  },
+  "dependencies": {
+    "web-vitals": "^6.2.3"
+  },
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^14.3.0",
+    "eslint": "^9",
+    "happy-dom": "^21.0.4",
+    "size-limit": "^14.3.0",
+    "tsup": "^9.0.0",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  }
+}

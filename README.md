@@ -23,3 +23,19 @@ GitHub login needs an OAuth app (callback URL: `<supabase url>/auth/v1/callback`
 - **`daily_rollups.release` is `NOT NULL DEFAULT ''`** because it is part of the primary key, and Postgres primary keys cannot contain NULL. Trade-off: "no release" is stored as an empty string.
 - **Allowed origins are normalised with `new URL().origin`** (scheme + host + port, no path), so the ingest origin check in week 3 is an exact string match.
 - **TypeScript pinned to 5.9 and ESLint to 9** because typescript-eslint and eslint-config-next do not support TS 7 / ESLint 10 yet.
+- **SDK uses the plain `web-vitals` build, not the attribution build.** Measured with size-limit: `web-vitals/attribution` alone is 5.35 KB gzip (all five metrics), which already breaks the 5 KB budget; the plain build is 3.18 KB. Attribution (LCP element and URL, INP target and event type, CLS shift source) is built from `metric.entries` in `packages/sdk/src/attribution.ts`. Trade-off: we maintain a small selector helper instead of using the library's, and our selectors are shorter and less precise (max 4 levels, first class only).
+- **`web-vitals` is the SDK's only dependency** (approved). Dev-only: tsup, size-limit, vitest, happy-dom.
+- **Payload is sent as a plain string (`text/plain`)** with `sendBeacon`, falling back to `fetch(..., { keepalive: true })`. This avoids a CORS preflight, which `application/json` would trigger. Trade-off: the server parses JSON manually (the spec already requires this).
+- **One beacon per flush, capped at 16 KB (counted in UTF-8 bytes).** Reports that do not fit stay queued for the next flush; a single report that can never fit is dropped. A newer report of the same metric replaces an unsent older one (CLS and INP can update).
+- **Device uses `userAgentData.mobile` when present, else viewport width.** Trade-off: iPadOS reports a desktop-like user agent, so iPads count as desktop.
+- **No default `endpoint` yet.** The hosted URL does not exist until week 6, so `init()` does nothing without an `endpoint` rather than sending to a guessed domain.
+- **Flush listeners are registered after the `web-vitals` listeners**, so final LCP/INP/CLS values are queued before the page-hidden flush runs.
+
+## SDK size
+
+Measured by `pnpm size` (size-limit, minified + gzip, including `web-vitals`), at week 2:
+
+| Build | Size | Limit |
+|---|---|---|
+| ESM | 4.65 KB | 5 KB |
+| IIFE | 4.78 KB | 5 KB |
