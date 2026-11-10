@@ -1,7 +1,26 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { formatAxis, formatDay, formatValue, hasEnoughData, METRIC_NAMES, MIN_SAMPLES, type MetricKey } from "@/lib/vitals";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceDot,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  formatAxis,
+  formatDay,
+  formatValue,
+  hasEnoughData,
+  METRIC_NAMES,
+  MIN_SAMPLES,
+  THRESHOLDS,
+  type MetricKey,
+} from "@/lib/vitals";
 
 export interface TrendPoint {
   day: string; // YYYY-MM-DD (UTC)
@@ -62,6 +81,20 @@ export function TrendChart({ metric, points }: { metric: MetricKey; points: Tren
             axisLine={false}
             width={52}
             tick={{ fill: "var(--color-vz-muted)", fontSize: 12 }}
+          />
+          {/* Solid hairline at the "good" limit. extendDomain stretches the axis up to it, so a tiny value is
+              shown against the threshold instead of filling a rescaled axis, and the ticks stay round. */}
+          <ReferenceLine
+            y={THRESHOLDS[metric][0]}
+            stroke="var(--color-vz-muted)"
+            strokeWidth={1}
+            ifOverflow="extendDomain"
+            label={{
+              value: `Good ≤ ${formatValue(metric, THRESHOLDS[metric][0])}`,
+              position: "insideTopRight",
+              fill: "var(--color-vz-muted)",
+              fontSize: 11,
+            }}
           />
           <Tooltip
             cursor={{ stroke: "var(--color-vz-axis)", strokeWidth: 1 }}

@@ -32,6 +32,7 @@ describe("formatting", () => {
   it("uses compact axis labels", () => {
     expect(formatAxis("LCP", 2500)).toBe("2.5 s");
     expect(formatAxis("LCP", 2000)).toBe("2 s");
+    expect(formatAxis("LCP", 90)).toBe("0.09 s");
     expect(formatAxis("INP", 200)).toBe("200 ms");
     expect(formatAxis("CLS", 0.1)).toBe("0.1");
   });
