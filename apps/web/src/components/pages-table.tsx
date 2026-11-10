@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RatingShape } from "./rating";
 import { filtersToParams, type Filters } from "@/lib/filters";
 import { nextDir, type PageRow, type SortDir, type SortKey } from "@/lib/pages-table";
+import { encodePathId } from "@/lib/path-id";
 import { formatValue, hasEnoughData, MIN_SAMPLES, rate, type MetricKey } from "@/lib/vitals";
 
 const nf = new Intl.NumberFormat("en");
@@ -75,7 +76,12 @@ export function PagesTable({
           {rows.map((r) => (
             <tr key={r.path} className="border-t border-vz-grid">
               <th scope="row" className="max-w-xs truncate px-4 py-3 font-mono text-xs font-normal text-vz-ink" title={r.path}>
-                {r.path}
+                <Link
+                  href={`/app/sites/${siteId}/pages/${encodePathId(r.path)}?${filtersToParams(filters).toString()}`}
+                  className="underline hover:text-vz-series"
+                >
+                  {r.path}
+                </Link>
               </th>
               <td className="px-4 py-3 tabular-nums">{nf.format(r.views)}</td>
               <td className="px-4 py-3 tabular-nums">

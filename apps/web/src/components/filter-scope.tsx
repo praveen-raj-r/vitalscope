@@ -4,17 +4,31 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { DAY_OPTIONS, DEVICE_OPTIONS, filtersToParams, type Filters } from "@/lib/filters";
 
+interface CompareProps {
+  /** Releases the user can pick from, newest first. */
+  releases: string[];
+  a: string | null;
+  b: string | null;
+}
+
+const SELECT_CLASS = "mt-1 block rounded-md border border-vz-axis bg-vz-surface px-2 py-1.5 text-sm text-vz-ink";
+
 /**
  * One filter row above everything it scopes. Changing a filter updates the URL, so the server renders the
  * new numbers; meanwhile the content below keeps its frame and dims, instead of flashing a skeleton.
+ *
+ * With `compare`, the single Release filter is replaced by a Baseline and a Compare release picker
+ * (the release comparison page), stored in the `a` and `b` URL parameters.
  */
 export function FilterScope({
   filters,
   releases,
+  compare,
   children,
 }: {
   filters: Filters;
   releases: string[];
+  compare?: CompareProps;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -22,14 +36,24 @@ export function FilterScope({
   const search = useSearchParams();
   const [pending, startTransition] = useTransition();
 
-  function update(next: Filters) {
-    const qs = filtersToParams(next, new URLSearchParams(search.toString())).toString();
+  function go(params: URLSearchParams) {
+    const qs = params.toString();
     startTransition(() => router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false }));
+  }
+
+  function update(next: Filters) {
+    go(filtersToParams(next, new URLSearchParams(search.toString())));
+  }
+
+  function setParam(key: "a" | "b", value: string) {
+    const params = new URLSearchParams(search.toString());
+    if (value) params.set(key, value);
+    else params.delete(key);
+    go(params);
   }
 
   // A release in the URL that has no events in the list must still be selectable, so the select stays truthful.
   const releaseOptions = filters.release && !releases.includes(filters.release) ? [filters.release, ...releases] : releases;
-  const selectClass = "mt-1 block rounded-md border border-vz-axis bg-vz-surface px-2 py-1.5 text-sm text-vz-ink";
 
   return (
     <div>
@@ -56,7 +80,7 @@ export function FilterScope({
         <label className="text-xs text-vz-ink-2">
           Device
           <select
-            className={selectClass}
+            className={SELECT_CLASS}
             value={filters.device ?? ""}
             onChange={(e) => update({ ...filters, device: (e.target.value || null) as Filters["device"] })}
           >
@@ -69,21 +93,48 @@ export function FilterScope({
           </select>
         </label>
 
-        <label className="text-xs text-vz-ink-2">
-          Release
-          <select
-            className={selectClass}
-            value={filters.release ?? ""}
-            onChange={(e) => update({ ...filters, release: e.target.value || null })}
-          >
-            <option value="">All releases</option>
-            {releaseOptions.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </label>
+        {compare ? (
+          <>
+            <label className="text-xs text-vz-ink-2">
+              Baseline release
+              <select className={SELECT_CLASS} value={compare.a ?? ""} onChange={(e) => setParam("a", e.target.value)}>
+                {compare.a === null && <option value="">No release</option>}
+                {compare.releases.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs text-vz-ink-2">
+              Compare release
+              <select className={SELECT_CLASS} value={compare.b ?? ""} onChange={(e) => setParam("b", e.target.value)}>
+                {compare.b === null && <option value="">No release</option>}
+                {compare.releases.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
+        ) : (
+          <label className="text-xs text-vz-ink-2">
+            Release
+            <select
+              className={SELECT_CLASS}
+              value={filters.release ?? ""}
+              onChange={(e) => update({ ...filters, release: e.target.value || null })}
+            >
+              <option value="">All releases</option>
+              {releaseOptions.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
 
       <div aria-busy={pending} className={`mt-6 transition-opacity ${pending ? "opacity-50" : ""}`}>
