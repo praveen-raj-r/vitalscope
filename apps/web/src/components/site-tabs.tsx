@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-/** Tabs keep the active filters (days, device, release) when switching between views. */
-export function SiteTabs({ siteId }: { siteId: string }) {
+/**
+ * Tabs keep the active filters (days, device, release) when switching between views.
+ * `basePath` is `/app/sites/<id>` in the signed-in dashboard and `/demo` in the public demo.
+ */
+export function SiteTabs({ basePath }: { basePath: string }) {
   const pathname = usePathname();
   const search = useSearchParams();
   const kept = new URLSearchParams();
@@ -14,10 +17,11 @@ export function SiteTabs({ siteId }: { siteId: string }) {
   }
   const qs = kept.toString() ? `?${kept.toString()}` : "";
 
-  const base = `/app/sites/${siteId}`;
+  const base = basePath;
   const tabs = [
     { label: "Overview", href: base, active: pathname === base },
     { label: "Pages", href: `${base}/pages`, active: pathname.startsWith(`${base}/pages`) },
+    { label: "Releases", href: `${base}/releases`, active: pathname.startsWith(`${base}/releases`) },
   ];
 
   return (

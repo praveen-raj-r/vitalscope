@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { handleIngest } from "@/lib/ingest/handler";
 import { createRateLimiter } from "@/lib/ingest/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -11,6 +12,7 @@ const limiter = createRateLimiter({ capacity: 100, windowMs: 10_000 });
 export async function POST(request: Request) {
   return handleIngest(request, {
     limiter,
+    onError: (e) => Sentry.captureException(e),
     async findSite(siteKey) {
       const { data, error } = await createAdminClient()
         .from("sites")

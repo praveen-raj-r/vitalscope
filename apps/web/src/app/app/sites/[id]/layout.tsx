@@ -26,7 +26,7 @@ export default async function SiteLayout({
       </Link>
       <h1 className="mt-2 text-2xl font-semibold">{site.name}</h1>
       <p className="text-xs text-neutral-500">{site.allowed_origins.join(", ")}</p>
-      <SiteTabs siteId={id} />
+      <SiteTabs basePath={`/app/sites/${id}`} />
       <div className="mt-6">{children}</div>
     </div>
   );

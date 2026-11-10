@@ -41,3 +41,15 @@ describe("isUuid", () => {
     expect(isUuid("30000000-0000-0000-0000-0000000000a1; drop table")).toBe(false);
   });
 });
+
+describe("demoSiteId", () => {
+  it("accepts only a valid UUID, so a typo means the demo is off rather than reading something else", async () => {
+    const { demoSiteId } = await import("./demo");
+    expect(demoSiteId("f721123f-2c82-4476-a029-3bc71cf4d3d9")).toBe("f721123f-2c82-4476-a029-3bc71cf4d3d9");
+    expect(demoSiteId("  f721123f-2c82-4476-a029-3bc71cf4d3d9  ")).toBe("f721123f-2c82-4476-a029-3bc71cf4d3d9");
+    expect(demoSiteId(undefined)).toBeNull();
+    expect(demoSiteId("")).toBeNull();
+    expect(demoSiteId("Sample data")).toBeNull();
+    expect(demoSiteId("f721123f-2c82-4476-a029-3bc71cf4d3d9,other")).toBeNull();
+  });
+});

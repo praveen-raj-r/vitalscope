@@ -23,6 +23,8 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Only the routes that use the signed-in session. The landing page, /demo, /api/ingest and /api/cron do not,
+// so visitors to them never trigger a Supabase call.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/ingest).*)"],
+  matcher: ["/app/:path*", "/login", "/auth/:path*"],
 };

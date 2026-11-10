@@ -21,4 +21,7 @@
   --color-vz-good: #0ca30c;
   --color-vz-warn: #fab219;
   --color-vz-bad: #d03b3b;
+  /* Text colours for a change between releases; always shown with an arrow and the words better / worse. */
+  --color-vz-delta-good: #006300;
+  --color-vz-delta-bad: #d03b3b;
 }

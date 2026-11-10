@@ -1,13 +1,35 @@
 {
   "name": "@vitalscope/sdk",
-  "version": "0.0.0",
-  "description": "Tiny real-user Core Web Vitals SDK",
+  "version": "0.1.0",
+  "description": "Tiny real-user Core Web Vitals SDK (LCP, INP, CLS, FCP, TTFB) under 5 KB gzipped",
   "license": "MIT",
+  "author": "Praveen Raj",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/praveen-raj-r/vitalscope.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/praveen-raj-r/vitalscope#readme",
+  "bugs": {
+    "url": "https://github.com/praveen-raj-r/vitalscope/issues"
+  },
+  "keywords": [
+    "core-web-vitals",
+    "web-vitals",
+    "rum",
+    "real-user-monitoring",
+    "performance",
+    "lcp",
+    "inp",
+    "cls"
+  ],
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "unpkg": "./dist/vitalscope.global.js",
+  "jsdelivr": "./dist/vitalscope.global.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -15,14 +37,23 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsup",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "size": "size-limit"
+    "size": "size-limit",
+    "prepublishOnly": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run size"
   },
   "dependencies": {
     "web-vitals": "^6.2.3"
