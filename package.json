@@ -1,0 +1,13 @@
+{
+  "name": "vitalscope",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "build": "pnpm -r --if-present build",
+    "size": "pnpm --filter @vitalscope/sdk size"
+  }
+}
