@@ -22,7 +22,7 @@ function deps(over: Partial<IngestDeps> = {}): IngestDeps & { insert: ReturnType
   const insert = vi.fn(async () => {});
   return {
     findSite: async (key) => (key === "vs_pub_x" ? SITE : null),
-    insertEvents: insert,
+    saveEvents: insert,
     limiter: createRateLimiter({ capacity: 100, windowMs: 10_000 }),
     insert,
     ...over,
@@ -88,6 +88,20 @@ describe("toRows", () => {
       attribution: null,
       client_ts: "2023-11-14T22:13:20.000Z",
     });
+  });
+  it("keeps only the last report of a metric within one page view, but not across page views", () => {
+    const parsed = payloadSchema.parse(
+      payload([
+        report({ metric: "CLS", value: 0.1 }),
+        report({ metric: "CLS", value: 0.3 }),
+        report({ metric: "CLS", value: 0.5, pageViewId: "pv-2" }),
+        report({ metric: "LCP" }),
+      ]),
+    );
+    const rows = toRows("s", parsed.reports);
+    expect(rows).toHaveLength(3);
+    expect(rows.find((r) => r.metric === "CLS" && r.page_view_id === "pv-1")!.value).toBe(0.3);
+    expect(rows.find((r) => r.metric === "CLS" && r.page_view_id === "pv-2")!.value).toBe(0.5);
   });
   it("turns an impossible client timestamp into null instead of failing", () => {
     const parsed = payloadSchema.parse(payload([report({ ts: 9e15 })]));
@@ -218,7 +232,7 @@ describe("handleIngest", () => {
     const lookup = await handleIngest(post(payload()), deps({ findSite: async () => { throw new Error("secret db detail"); } }));
     expect(lookup.status).toBe(500);
     expect(JSON.stringify(await lookup.json())).not.toContain("secret");
-    const insert = await handleIngest(post(payload()), deps({ insertEvents: async () => { throw new Error("secret db detail"); } }));
+    const insert = await handleIngest(post(payload()), deps({ saveEvents: async () => { throw new Error("secret db detail"); } }));
     expect(insert.status).toBe(500);
     expect(JSON.stringify(await insert.json())).not.toContain("secret");
   });

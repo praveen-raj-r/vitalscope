@@ -8,8 +8,8 @@ export interface SiteRecord {
 
 export interface IngestDeps {
   findSite(siteKey: string): Promise<SiteRecord | null>;
-  /** Must throw if the insert fails. */
-  insertEvents(rows: EventRow[]): Promise<void>;
+  /** Insert, or replace the existing row for the same page view and metric. Must throw on failure. */
+  saveEvents(rows: EventRow[]): Promise<void>;
   limiter: RateLimiter;
 }
 
@@ -95,7 +95,7 @@ export async function handleIngest(request: Request, deps: IngestDeps): Promise<
   }
 
   try {
-    await deps.insertEvents(toRows(site.id, parsed.data.reports));
+    await deps.saveEvents(toRows(site.id, parsed.data.reports));
   } catch (e) {
     console.error("[ingest] insert failed", e instanceof Error ? e.message : "unknown");
     return reply(500, "server error", cors);

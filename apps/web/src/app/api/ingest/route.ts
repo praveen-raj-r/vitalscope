@@ -20,8 +20,12 @@ export async function POST(request: Request) {
       if (error) throw new Error(error.message);
       return data ? { id: data.id, allowedOrigins: data.allowed_origins } : null;
     },
-    async insertEvents(rows) {
-      const { error } = await createAdminClient().from("events").insert(rows);
+    async saveEvents(rows) {
+      // One row per (site, page view, metric): a later report of the same metric replaces the earlier
+      // one. Needs the unique index from migration 20261110160000.
+      const { error } = await createAdminClient()
+        .from("events")
+        .upsert(rows, { onConflict: "site_id,page_view_id,metric" });
       if (error) throw new Error(error.message);
     },
   });
