@@ -236,4 +236,24 @@ describe("handleIngest", () => {
     expect(insert.status).toBe(500);
     expect(JSON.stringify(await insert.json())).not.toContain("secret");
   });
+
+  it("passes the real error to onError (for error reporting) while the response stays generic", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const onError = vi.fn();
+    const boom = new Error("db down");
+    const res = await handleIngest(post(payload()), deps({ saveEvents: async () => { throw boom; }, onError }));
+    expect(res.status).toBe(500);
+    expect(onError).toHaveBeenCalledWith(boom);
+
+    const lookupBoom = new Error("lookup down");
+    await handleIngest(post(payload()), deps({ findSite: async () => { throw lookupBoom; }, onError }));
+    expect(onError).toHaveBeenCalledWith(lookupBoom);
+  });
+
+  it("does not call onError for ordinary rejections such as a bad origin or invalid payload", async () => {
+    const onError = vi.fn();
+    await handleIngest(post(payload(), { origin: "https://evil.example" }), deps({ onError }));
+    await handleIngest(post(payload([report({ metric: "FID" })])), deps({ onError }));
+    expect(onError).not.toHaveBeenCalled();
+  });
 });

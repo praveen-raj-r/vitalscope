@@ -123,4 +123,19 @@ describe("handleCron", () => {
     expect(JSON.stringify(await res.json())).not.toContain("relation");
     expect(d.applyRetention).not.toHaveBeenCalled();
   });
+
+  it("passes the real error to onError, and only for failures", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const onError = vi.fn();
+    const boom = new Error("rollup failed");
+    const failing = deps({ rollupDay: vi.fn(async () => { throw boom; }) });
+    await handleCron(get({ authorization: `Bearer ${SECRET}` }), { secret: SECRET, deps: failing.d, now: NOW, onError });
+    expect(onError).toHaveBeenCalledWith(boom);
+
+    onError.mockClear();
+    const ok = deps();
+    await handleCron(get({ authorization: `Bearer ${SECRET}` }), { secret: SECRET, deps: ok.d, now: NOW, onError });
+    await handleCron(get({ authorization: "Bearer wrong" }), { secret: SECRET, deps: ok.d, now: NOW, onError });
+    expect(onError).not.toHaveBeenCalled();
+  });
 });

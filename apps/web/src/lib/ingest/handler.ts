@@ -11,6 +11,8 @@ export interface IngestDeps {
   /** Insert, or replace the existing row for the same page view and metric. Must throw on failure. */
   saveEvents(rows: EventRow[]): Promise<void>;
   limiter: RateLimiter;
+  /** Called with the real error when a lookup or insert fails (the response itself stays generic). */
+  onError?: (error: unknown) => void;
 }
 
 /** Read at most `max` bytes. Returns null as soon as the body is known to be larger. */
@@ -75,6 +77,7 @@ export async function handleIngest(request: Request, deps: IngestDeps): Promise<
     site = await deps.findSite(siteKey);
   } catch (e) {
     console.error("[ingest] site lookup failed", e instanceof Error ? e.message : "unknown");
+    deps.onError?.(e);
     return reply(500, "server error");
   }
   if (!site) return reply(404, "unknown site");
@@ -98,6 +101,7 @@ export async function handleIngest(request: Request, deps: IngestDeps): Promise<
     await deps.saveEvents(toRows(site.id, parsed.data.reports));
   } catch (e) {
     console.error("[ingest] insert failed", e instanceof Error ? e.message : "unknown");
+    deps.onError?.(e);
     return reply(500, "server error", cors);
   }
   return reply(204, undefined, cors);

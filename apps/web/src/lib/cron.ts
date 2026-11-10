@@ -52,7 +52,7 @@ function json(status: number, body: unknown): Response {
 /** The cron endpoint, without framework imports so it can be tested with plain Request objects. */
 export async function handleCron(
   request: Request,
-  options: { secret: string | undefined; deps: CronDeps; now?: Date },
+  options: { secret: string | undefined; deps: CronDeps; now?: Date; onError?: (error: unknown) => void },
 ): Promise<Response> {
   if (!options.secret) return json(503, { error: "cron is not configured" });
   if (!isAuthorized(request.headers.get("authorization"), options.secret)) return json(401, { error: "unauthorized" });
@@ -60,6 +60,7 @@ export async function handleCron(
     return json(200, await runDailyJob(options.deps, options.now));
   } catch (e) {
     console.error("[cron] daily job failed", e instanceof Error ? e.message : "unknown");
+    options.onError?.(e);
     return json(500, { error: "job failed" });
   }
 }
