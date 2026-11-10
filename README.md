@@ -94,7 +94,7 @@ To try it locally, set `CRON_SECRET` in `apps/web/.env.local`, restart the dev s
 - **Payload is sent as a plain string (`text/plain`)** with `sendBeacon`, falling back to `fetch(..., { keepalive: true })`. This avoids a CORS preflight, which `application/json` would trigger. Trade-off: the server parses JSON manually (the spec already requires this).
 - **One beacon per flush, capped at 16 KB (counted in UTF-8 bytes).** Reports that do not fit stay queued for the next flush; a single report that can never fit is dropped. A newer report of the same metric replaces an unsent older one (CLS and INP can update).
 - **Device uses `userAgentData.mobile` when present, else viewport width.** Trade-off: iPadOS reports a desktop-like user agent, so iPads count as desktop.
-- **No default `endpoint` yet.** The hosted URL does not exist until week 6, so `init()` does nothing without an `endpoint` rather than sending to a guessed domain.
+- **The default `endpoint` is the hosted deployment (`https://vitalscope-rum.vercel.app/api/ingest`).** A user who only sets `siteKey` works out of the box. Trade-off: the default is baked into every published version, so moving to a custom domain later means a new SDK release, and old versions keep sending to the old address until it redirects.
 - **Flush listeners are registered after the `web-vitals` listeners**, so final LCP/INP/CLS values are queued before the page-hidden flush runs.
 
 ## SDK size

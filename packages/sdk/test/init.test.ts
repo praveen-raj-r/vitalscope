@@ -19,8 +19,13 @@ describe("init", () => {
     const { init } = await import("../src/index");
     expect(() => init(undefined as never)).not.toThrow();
     expect(() => init({ siteKey: "" })).not.toThrow();
-    expect(() => init({ siteKey: "k" })).not.toThrow(); // no endpoint yet
     expect(warn).not.toHaveBeenCalled();
+  });
+  it("starts with the hosted default endpoint when none is given", async () => {
+    const wv = await import("web-vitals");
+    const { init } = await import("../src/index");
+    init({ siteKey: "k" });
+    expect(wv.onLCP).toHaveBeenCalledTimes(1);
   });
   it("warns only in debug mode", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});

@@ -12,7 +12,6 @@ const SNIPPET = `import { init } from '@vitalscope/sdk';
 
 init({
   siteKey: 'vs_pub_your_site_key',
-  endpoint: 'https://your-vitalscope-host/api/ingest',
   release: '1.0.0', // optional: compare releases
 });`;
 

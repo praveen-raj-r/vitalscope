@@ -3,9 +3,9 @@ import type { InitOptions } from "./types";
 
 export type { InitOptions, MetricName, Rating, Device, Report } from "./types";
 
-// Hosted ingest URL. Intentionally empty until the public deployment exists (week 6);
-// until then `endpoint` is required, otherwise init() does nothing.
-const DEFAULT_ENDPOINT = "";
+// The hosted ingest URL, used when `endpoint` is not given. Every published version carries it, so move to a
+// custom domain before this package has many users.
+const DEFAULT_ENDPOINT = "https://vitalscope-rum.vercel.app/api/ingest";
 
 let started = false;
 

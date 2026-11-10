@@ -13,7 +13,7 @@ import { init } from "@vitalscope/sdk";
 
 init({
   siteKey: "vs_pub_...", // public key from your dashboard
-  endpoint: "https://your-vitalscope.example/api/ingest",
+  // endpoint: "https://your-vitalscope.example/api/ingest", // only if you host your own
 });
 ```
 
@@ -22,18 +22,18 @@ Or without a bundler:
 ```html
 <script src="https://unpkg.com/@vitalscope/sdk/dist/vitalscope.global.js"></script>
 <script>
-  Vitalscope.init({ siteKey: "vs_pub_...", endpoint: "https://your-vitalscope.example/api/ingest" });
+  Vitalscope.init({ siteKey: "vs_pub_..." });
 </script>
 ```
 
-`endpoint` is required for now: there is no hosted default yet, and without it `init()` does nothing.
+`endpoint` is optional. Without it the SDK sends to the hosted ingest at `https://vitalscope-rum.vercel.app/api/ingest`, which accepts events only for site keys created in that dashboard. If you host your own Vitalscope, set `endpoint` to your own URL.
 
 ## Options
 
 | Option | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `siteKey` | `string` | required | Public site key from the dashboard. |
-| `endpoint` | `string` | required for now | Ingest URL. |
+| `endpoint` | `string` | hosted ingest | Ingest URL. Set it to use your own deployment. |
 | `sampleRate` | `number` (0 to 1) | `1` | Decided once per page view. |
 | `release` | `string` | none | Build or version tag, used for release comparison. |
 | `routePattern` | `(path) => string` | none | Normalise paths, e.g. `/b/123` to `/b/:id`. |
