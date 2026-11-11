@@ -2,7 +2,30 @@
 
 Real-user monitoring for Core Web Vitals: a tiny SDK plus a dashboard. See [vitalscope-spec.md](vitalscope-spec.md).
 
-Status: week 1 (foundation). SDK, ingest and charts are not built yet.
+- **Live demo (sample data, no sign-in):** https://vitalscope-rum.vercel.app/demo
+- **SDK:** [`@praveen-raj/vitalscope`](https://www.npmjs.com/package/@praveen-raj/vitalscope) on npm, under 5 KB gzipped (see [SDK size](#sdk-size)).
+
+```bash
+npm install @praveen-raj/vitalscope
+```
+
+## Screenshots
+
+All of these are the public demo, which runs on synthetic sample data (see [Sample data](#sample-data)).
+
+![Landing page](docs/screenshots/landing.png)
+
+![Site overview: p75 tiles and trend charts](docs/screenshots/overview.png)
+
+![Page detail: distribution per metric](docs/screenshots/page-detail.png)
+
+![Release comparison](docs/screenshots/releases.png)
+
+The dashboard is built mobile first; this is the overview on a phone-sized screen.
+
+<img src="docs/screenshots/overview-mobile.png" alt="Site overview on a phone" width="280">
+
+Screenshots come from the Next.js dev server; to retake them, run the app with `DEMO_SITE_ID` set and capture `/`, `/demo`, `/demo/releases` and one page from `/demo/pages`.
 
 ## Develop
 
@@ -72,8 +95,8 @@ To try it locally, set `CRON_SECRET` in `apps/web/.env.local`, restart the dev s
 - **"Last N days" is N whole UTC days ending today, not a rolling N x 24 hours** (`vitalscope.window_start`, migration `20261110200000_whole_day_window.sql`). A rolling window started mid-day, so the first trend point was a partial day (27 samples instead of 40 in the sample data) and always the noisiest. Trade-off: today is still partial because it only has the data collected so far, and the window length varies between N-1 and N days of elapsed time.
 - **Raw events are kept for 30 days and read directly for the tiles and the pages table; the trend reads daily rollups with a raw fallback** (see the rollups decisions below). Storage, measured on the hosted database on 2026-11-11: 2,773 events take 2.3 MB including indexes (about 0.8 KB per event: 0.36 KB table + 0.47 KB indexes), so 1M events would be roughly 0.8 GB. That is an extrapolation from a small table, not a benchmark: index and page overhead per row may differ at scale, and it covers `events` only (the rollup table was 598 KB for 2,746 rows). Query speed was measured only at this size and has not been measured at scale.
 - **Filters live in the URL** (`?days=30&device=mobile&release=1.0`), so a view can be linked and the server renders the numbers. Invalid values fall back to defaults. While new numbers load, the content dims instead of showing a skeleton; skeletons are only for the first load.
-- **Numbers under 30 samples are greyed out with "not enough data"** and get no good/poor rating. In the trend chart and table those days are flagged "low sample" rather than hidden, so the line stays continuous.
-- **Charts use Recharts (approved dependency)** in one client component, `components/trend-chart.tsx`; everything else on the dashboard is server-rendered. Each metric has its own chart because the units differ (no dual axis). Every chart has a "View as table" twin. Status colours are always paired with a shape and a text label. The dashboard is light-mode only for now; the colour tokens in `globals.css` are the single place to add a dark theme. Measured from the production build (Next 16, Recharts 3.10.1, gzip level 9): the chunk that contains Recharts is 368 KB raw, 107.7 KB gzipped, and is loaded only by the pages that draw charts (`/demo` and the dashboard overview). The landing page and the pages table do not load it; the landing page's own route code is about 7 KB gzipped. Shared framework code (about 232 KB gzipped) is loaded by every page regardless. Trade-off: the dashboard overview pays about 108 KB extra for charts; a lighter library or hand-drawn SVG would cut that, at the cost of writing the axes and tooltips ourselves.
+- **A number backed by under 30 samples is not shown as a verdict.** The overview tiles and the pages table say "Not enough data (need 30, have N)" and give no good/poor rating; the tile shows "—" in place of the value. In the trend chart's table those days are flagged "low sample" rather than hidden, so the line stays continuous, and a metric with too few samples overall shows the same message instead of a chart. The threshold is `MIN_SAMPLES` in `lib/vitals.ts`, one number for every screen.
+- **Charts use Recharts (approved dependency)** in two client components, `components/trend-chart.tsx` and `components/histogram-chart.tsx`; the rest of the dashboard is server-rendered apart from small interactive pieces (filters, the "View as table" toggles, copy buttons, the account menu). Each metric has its own chart because the units differ (no dual axis). Every chart has a "View as table" twin. The rating bands, dashed limit lines and the p75 marker are drawn with Recharts reference elements; the p75 marker on a histogram sits in the middle of the bar that holds the p75, not at its exact value, because the bars are categories (the legend states the exact value). The release comparison's range bar is plain CSS, not Recharts. Status colours are always paired with a shape and a text label. The dashboard is light-mode only for now; the colour tokens in `globals.css` are the single place to add a dark theme. Measured from the production build (Next 16, Recharts 3.10.1, gzip level 9): the chunk that contains Recharts is 368 KB raw, 107.7 KB gzipped, and is loaded only by the pages that draw charts (`/demo` and the dashboard overview). The landing page and the pages table do not load it; the landing page's own route code is about 7 KB gzipped. Shared framework code (about 232 KB gzipped) is loaded by every page regardless. Trade-off: the dashboard overview pays about 108 KB extra for charts; a lighter library or hand-drawn SVG would cut that, at the cost of writing the axes and tooltips ourselves.
 - **The page detail route carries the path as base64url** (`/app/sites/[id]/pages/[path]`, `lib/path-id.ts`), not as `encodeURIComponent(path)`. Paths contain slashes and percent signs, and I could not rely on how a dynamic route segment decodes them. Trade-off: the URL is not human-readable. Ids that do not round-trip exactly are a 404.
 - **Histograms use fixed equal-width bins per metric, aligned to the spec thresholds** (LCP 500 ms, INP 100 ms, CLS 0.05; `lib/histogram.ts`), so no bar straddles good / needs-improvement / poor and each bar can be coloured by its rating. Trade-off: fixed bins cannot adapt to an unusual page, and anything above the last bin is one overflow bar. Bins are computed in SQL with `width_bucket`; empty bins are filled in by the app.
 - **"What is slow" ranks attribution targets by their count of not-good samples**, then by volume, not by p75. A rare element with one huge sample would otherwise top the list; this puts the biggest source of bad experiences first. Trade-off: a very slow but rare element can rank low.
@@ -87,7 +110,9 @@ To try it locally, set `CRON_SECRET` in `apps/web/.env.local`, restart the dev s
 - **The signed-in dashboard and the demo share the same view components** (`components/views/*`), which take a small `{ rpc }` client and a `basePath`. The two cannot drift apart, and the dashboard's own tests of logic cover both. Trade-off: the views are a seam to remember when changing a page.
 - **The session-refresh proxy now runs only on `/app`, `/login` and `/auth`,** so visitors to the landing page, the demo, `/api/ingest` and `/api/cron` never trigger a Supabase call.
 - **The end-to-end test runs the real ingest handler against an in-memory store, not a database** (`apps/e2e/server/stub-ingest.ts`). It proves the part that is hard to unit test (a real browser, the real SDK, a beacon sent while the page is left, the origin check, the size cap) with no infrastructure. Trade-off: it does not prove the database insert or the dashboard; those are covered by the pgTAP tests and the unit tests, not by a browser test. The spec's "event appears in the dashboard" would need a full local Supabase stack in CI, which clashed on a port earlier.
-- **The landing page says the package is not published yet** (`NPM_PUBLISHED` in `lib/site-config.ts`) until it is, rather than showing an install snippet that cannot work.
+- **The landing page has a switch for "package not published yet"** (`NPM_PUBLISHED` in `lib/site-config.ts`, now `true`), so it never shows an install snippet that cannot work. Flip it back if the package is ever unpublished.
+- **The interface was designed first, in nine mockups, then built screen by screen** (landing, sign in, sites list, overview, pages, page detail, releases, delete site, demo, system states; the mockup files are kept out of git in `design/`). Decisions that came from that: light mode only; Newsreader (headings and the big numbers), Geist and Geist Mono loaded once in the root layout with `next/font`; colour tokens in `globals.css`; a rating is always a shape plus a word (a circle with a check, a triangle with "!", a diamond with a cross), never colour alone; buttons, links and form fields are built at least 44 px tall (this was a design rule, not something measured on every element); the sticky "Demo" banner on `/demo` says in words that the data is synthetic. The mockups were treated as a guide, not a spec: where they disagreed with the product (for example "need 10 samples", while the code uses 30, and a 14-day range that the filters do not offer) the code won. The one purely decorative extra is an animated aurora gradient on the install box, which stops moving for visitors who ask for reduced motion.
+- **Mobile uses a different layout, not a squeezed table:** the pages table becomes a list of cards with a sort dropdown, attribution rows stack, and the release comparison's three columns become two plus a full-width change. Both layouts are in the page and CSS picks one, so there is no layout shift and no client-side width detection.
 - **Sentry (`@sentry/nextjs`, dashboard app only) collects nothing beyond the error itself.** Its default data collection in this version includes cookies (this app's session cookie), request headers and bodies, query strings, user info and local variable values, so every one of those is switched off in `src/sentry-data-collection.ts`, shared by the server and the browser. It is errors only (no performance tracing, no session replay), which keeps the free quota for what matters. Two Sentry settings (in Sentry, not in code) finish the job: "Prevent Storing of IP Addresses", and an advanced data scrubbing rule that removes `user.geo.**`, because Sentry otherwise adds a city-level location derived from the sender's IP on its own servers. Both are needed and neither can be set from the app, so a fresh Sentry project must repeat them. Trade-offs: reports carry less context to debug with, and without an auth token the stack traces in Sentry are minified. The SDK package (`@praveen-raj/vitalscope`) has no Sentry code, so its size budget is untouched.
 - **Deleting a site is a server action behind a typed confirmation, and needs no migration.** The original schema already had an owner-only delete policy and the foreign keys cascade, so one `delete` removes the site's events and rollups too. The caller must type the site's exact name, and the site in `DEMO_SITE_ID` can never be deleted from the dashboard (otherwise one click would break the public demo). Trade-offs: it is permanent (no soft delete or undo), and a large site's cascade runs in one statement, which is fine at this scale but would need batching for millions of events.
 - **Handled failures are reported too.** `handleIngest` and `handleCron` take an optional `onError` hook, which the routes connect to Sentry, because a 500 that the code catches and answers itself would otherwise never reach Sentry. The responses stay generic.
@@ -100,12 +125,14 @@ To try it locally, set `CRON_SECRET` in `apps/web/.env.local`, restart the dev s
 
 ## SDK size
 
-Measured by `pnpm size` (size-limit, minified + gzip, including `web-vitals`), at week 2:
+Measured by `pnpm size` (size-limit, minified + gzip, including `web-vitals`), re-measured on 2026-11-11 for the published 0.1.0:
 
 | Build | Size | Limit |
 |---|---|---|
-| ESM | 4.65 KB | 5 KB |
-| IIFE | 4.78 KB | 5 KB |
+| ESM | 4.72 KB | 5 KB |
+| IIFE | 4.85 KB | 5 KB |
+
+That leaves about 0.15 to 0.28 KB of headroom, so any new SDK feature has to pay for itself or the budget has to be argued with.
 
 ### Shared Supabase project
 
