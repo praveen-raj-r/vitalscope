@@ -6,6 +6,10 @@ const BONE = "bg-[#e9e8e2]";
 export default function Loading() {
   return (
     <div role="status" aria-busy="true" aria-label="Loading dashboard" className="motion-safe:animate-pulse">
+      <div className="mb-7 flex gap-3">
+        <div className={`h-12.5 w-37.5 rounded-[10px] md:w-55 ${BONE}`} />
+        <div className={`h-12.5 w-27.5 rounded-[10px] md:w-30 ${BONE}`} />
+      </div>
       <div className="grid gap-4 md:grid-cols-3">
         {[0, 1, 2].map((i) => (
           <div key={i} className={`${CARD} flex flex-col gap-3.5 p-4 md:p-6`}>
