@@ -25,3 +25,47 @@
   --color-vz-delta-good: #006300;
   --color-vz-delta-bad: #d03b3b;
 }
+
+/*
+ * Aurora: a slow-moving gradient of teal, green, violet and pink, used as decoration only (the install box).
+ * Without motion (prefers-reduced-motion) the gradient simply stays still.
+ */
+@keyframes aurora-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.aurora-bg {
+  background-image: linear-gradient(
+    100deg,
+    #14b8a6,
+    #34d399,
+    #818cf8,
+    #c084fc,
+    #f472b6,
+    #14b8a6
+  );
+  background-size: 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .aurora-bg {
+    animation: aurora-flow 9s linear infinite;
+  }
+}
+
+/* The same aurora in deeper shades, for text, so it keeps enough contrast on the light surface. */
+.aurora-text {
+  background-image: linear-gradient(100deg, #0f766e, #15803d, #4f46e5, #7e22ce, #be185d, #0f766e);
+  background-size: 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .aurora-text {
+    animation: aurora-flow 9s linear infinite;
+  }
+}

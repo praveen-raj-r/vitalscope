@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GitHubMark, Logo } from "@/components/brand";
 import { CopyButton } from "@/components/copy-button";
+import { InstallCommand } from "@/components/install-command";
 import { GITHUB_URL, NPM_PUBLISHED } from "@/lib/site-config";
 import { FOCUS, MONO, SANS, SERIF } from "@/lib/ui";
 
@@ -11,7 +12,6 @@ export const metadata: Metadata = {
     "A tiny open-source SDK and a dashboard that show how fast your pages are for real visitors: p75 LCP, INP and CLS, by page, device and release.",
 };
 
-const INSTALL_COMMAND = "npm install @praveen-raj/vitalscope";
 const SNIPPET = `import { init } from '@praveen-raj/vitalscope';
 init({
   siteKey: 'vs_pub_your_site_key', release: '1.0.0'
@@ -295,21 +295,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex min-w-0 flex-col gap-3 md:gap-3.5">
-            <div
-              className={`flex items-center justify-between gap-2 rounded-[10px] bg-vz-surface py-1 pl-3 pr-1 text-[12.5px] shadow-[inset_0_0_0_1px_rgba(11,11,11,0.10)] md:pl-4.5 md:text-sm ${MONO}`}
-            >
-              <span className="min-w-0 wrap-anywhere">
-                <span className="text-vz-muted" aria-hidden="true">
-                  ${" "}
-                </span>
-                {INSTALL_COMMAND}
-              </span>
-              <CopyButton
-                text={INSTALL_COMMAND}
-                ariaLabel="Copy install command"
-                className={`min-h-11 min-w-11 shrink-0 rounded-[7px] px-2.5 text-[13px] font-medium hover:bg-[#efeee9] md:px-3.5 ${FOCUS}`}
-              />
-            </div>
+            <InstallCommand />
             <div className="overflow-hidden rounded-xl bg-vz-ink text-[#f1f0ec]">
               <div
                 className={`flex items-center justify-between pl-4 pr-1 pt-1 text-xs font-medium text-[#9d9b93] md:pl-7 md:pt-2 ${MONO}`}
