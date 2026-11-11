@@ -1,69 +1,118 @@
 import type { AttributionRow } from "@/lib/stats";
-import { formatValue, hasEnoughData, MIN_SAMPLES, percent, type MetricKey } from "@/lib/vitals";
+import { CARD, MONO } from "@/lib/ui";
+import {
+  formatValue,
+  hasEnoughData,
+  MIN_SAMPLES,
+  percent,
+  type MetricKey,
+} from "@/lib/vitals";
 
 const nf = new Intl.NumberFormat("en");
 
-const TITLES: Record<MetricKey, { heading: string; target: string }> = {
-  LCP: { heading: "Slowest LCP elements", target: "Element" },
-  INP: { heading: "Slowest INP interactions", target: "Interaction target" },
-  CLS: { heading: "Largest layout shifts", target: "Element that moved" },
+const TITLES: Record<
+  MetricKey,
+  { heading: string; sub: string; target: string }
+> = {
+  LCP: {
+    heading: "LCP element",
+    sub: "The elements that were the largest contentful paint, slowest first",
+    target: "Element",
+  },
+  INP: {
+    heading: "INP interaction target",
+    sub: "The elements the slowest interactions started on",
+    target: "Interaction target",
+  },
+  CLS: {
+    heading: "CLS shifting element",
+    sub: "The elements that moved the most",
+    target: "Element that moved",
+  },
 };
 
-export function AttributionTable({ metric, rows }: { metric: MetricKey; rows: AttributionRow[] }) {
-  const { heading, target } = TITLES[metric];
+/** Columns on wide screens; on narrow ones the target takes a full row and the numbers sit under it. */
+const ROW =
+  "grid grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-[minmax(0,1fr)_80px_90px_110px] md:gap-4";
+
+function Label({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-vz-border bg-vz-surface p-5" aria-label={heading}>
-      <h3 className="text-sm font-medium text-vz-ink">{heading}</h3>
-      <p className="text-xs text-vz-ink-2">
-        Ranked by how many samples were not &ldquo;good&rdquo;, so the biggest source of bad experiences comes first
-      </p>
+    <span className="mr-1.5 text-xs text-vz-ink-2 md:hidden">{children}</span>
+  );
+}
+
+export function AttributionTable({
+  metric,
+  rows,
+}: {
+  metric: MetricKey;
+  rows: AttributionRow[];
+}) {
+  const { heading, sub, target } = TITLES[metric];
+  return (
+    <section className={`${CARD} p-4 md:p-6`} aria-label={heading}>
+      <h3 className="text-[15px] leading-[1.35] font-semibold">{heading}</h3>
+      <p className="mt-1 text-[13px] leading-normal text-vz-ink-2">{sub}</p>
 
       {rows.length === 0 ? (
-        <p className="mt-4 text-sm text-vz-ink-2">
-          No {metric} attribution recorded for this page and period. The browser only reports it when it can identify the
-          element.
-        </p>
+        <div className="mt-3.5 rounded-[10px] bg-vz-page px-4 py-4.5 text-sm leading-normal text-vz-ink-2">
+          The browser did not report which element caused this.
+        </div>
       ) : (
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[32rem] text-left text-sm">
-            <caption className="sr-only">{heading}</caption>
-            <thead>
-              <tr className="text-xs text-vz-ink-2">
-                <th scope="col" className="py-1 pr-4 font-medium">
-                  {target}
-                </th>
-                <th scope="col" className="py-1 pr-4 font-medium">
-                  p75
-                </th>
-                <th scope="col" className="py-1 pr-4 font-medium">
-                  Samples
-                </th>
-                <th scope="col" className="py-1 font-medium">
-                  Not good
-                </th>
-              </tr>
-            </thead>
-            <tbody className="tabular-nums">
-              {rows.map((r) => {
-                const enough = hasEnoughData(r.samples);
-                return (
-                  <tr key={r.target} className="border-t border-vz-grid">
-                    <th scope="row" className="max-w-xs truncate py-2 pr-4 font-mono text-xs font-normal text-vz-ink" title={r.target}>
-                      {r.target}
-                    </th>
-                    <td className={`py-2 pr-4 ${enough ? "text-vz-ink" : "text-vz-muted"}`}>{formatValue(metric, r.p75)}</td>
-                    <td className="py-2 pr-4">
-                      {nf.format(r.samples)}
-                      {!enough && <span className="ml-2 text-xs text-vz-muted">under {MIN_SAMPLES}</span>}
-                    </td>
-                    <td className="py-2">
-                      {nf.format(r.not_good)} <span className="text-xs text-vz-ink-2">({percent(r.not_good, r.samples)}%)</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div role="table" aria-label={heading} className="mt-3">
+          <div
+            role="row"
+            className={`${ROW} hidden border-b border-vz-axis py-2 text-xs font-medium text-vz-ink-2 md:grid`}
+          >
+            <div role="columnheader">{target}</div>
+            <div role="columnheader">p75</div>
+            <div role="columnheader">Samples</div>
+            <div role="columnheader">Not good</div>
+          </div>
+          {rows.map((r) => {
+            const enough = hasEnoughData(r.samples);
+            return (
+              <div
+                key={r.target}
+                role="row"
+                className={`${ROW} items-start border-b border-vz-grid py-3.5`}
+              >
+                <div
+                  role="cell"
+                  title={r.target}
+                  className={`${MONO} col-span-2 min-w-0 text-[13.5px] leading-normal wrap-anywhere md:col-span-1`}
+                >
+                  {r.target}
+                </div>
+                <div
+                  role="cell"
+                  className={`text-sm tabular-nums ${enough ? "" : "text-vz-ink-2"}`}
+                >
+                  <Label>p75</Label>
+                  {formatValue(metric, r.p75)}
+                </div>
+                <div role="cell" className="text-sm tabular-nums">
+                  <Label>Samples</Label>
+                  {nf.format(r.samples)}
+                  {!enough && (
+                    <span className="ml-2 text-xs text-vz-ink-2">
+                      under {MIN_SAMPLES}
+                    </span>
+                  )}
+                </div>
+                <div
+                  role="cell"
+                  className="col-span-2 text-sm tabular-nums md:col-span-1"
+                >
+                  <Label>Not good</Label>
+                  {nf.format(r.not_good)}{" "}
+                  <span className="text-xs text-vz-ink-2">
+                    ({percent(r.not_good, r.samples)}%)
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </section>
