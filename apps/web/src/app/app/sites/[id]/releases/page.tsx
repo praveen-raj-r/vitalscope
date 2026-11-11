@@ -12,6 +12,7 @@ export default async function ReleasesPage({
   const { id } = await params;
   const sp = await searchParams;
   const supabase = await createClient();
+  const { data: site } = await supabase.from("sites").select("site_key").eq("id", id).single();
   // Releases usually span more than a week, so this page defaults to 30 days.
-  return <ReleasesView db={supabase} siteId={id} filters={parseFilters(sp, 30)} searchParams={sp} />;
+  return <ReleasesView db={supabase} siteId={id} filters={parseFilters(sp, 30)} searchParams={sp} siteKey={site?.site_key} />;
 }

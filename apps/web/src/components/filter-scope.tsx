@@ -124,7 +124,7 @@ export function FilterScope({
             <label className={LABEL_CLASS}>
               Baseline release
               <select
-                className={SELECT_CLASS}
+                className={`${SELECT_CLASS} font-mono`}
                 value={compare.a ?? ""}
                 onChange={(e) => setParam("a", e.target.value)}
               >
@@ -137,9 +137,9 @@ export function FilterScope({
               </select>
             </label>
             <label className={LABEL_CLASS}>
-              Compare release
+              Compare to
               <select
-                className={SELECT_CLASS}
+                className={`${SELECT_CLASS} font-mono`}
                 value={compare.b ?? ""}
                 onChange={(e) => setParam("b", e.target.value)}
               >
