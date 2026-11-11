@@ -21,9 +21,9 @@ export function RatingShape({ rating, size = 12 }: { rating: Rating; size?: numb
 }
 
 /** The shape with a mark inside (check, exclamation, cross), used in the larger rating pill. */
-function RatingGlyph({ rating }: { rating: Rating }) {
+export function RatingGlyph({ rating, size = 14 }: { rating: Rating; size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" className="shrink-0">
+    <svg width={size} height={size} viewBox="0 0 14 14" aria-hidden="true" className="shrink-0">
       {rating === "good" && (
         <>
           <circle cx="7" cy="7" r="7" fill={COLORS.good} />
