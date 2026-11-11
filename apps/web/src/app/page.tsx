@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import Link from "next/link";
+import { CopyButton } from "@/components/copy-button";
 import { GITHUB_URL, NPM_PUBLISHED } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -8,11 +10,23 @@ export const metadata: Metadata = {
     "A tiny open-source SDK and a dashboard that show how fast your pages are for real visitors: p75 LCP, INP and CLS, by page, device and release.",
 };
 
-const SNIPPET = `import { init } from '@praveen-raj/vitalscope';
+const serif = Newsreader({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-serif",
+});
+const sans = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
+const SERIF = "font-[family-name:var(--font-serif)]";
+const MONO = "font-[family-name:var(--font-mono)]";
+const FOCUS =
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vz-series focus-visible:rounded-md";
+
+const INSTALL_COMMAND = "npm install @praveen-raj/vitalscope";
+const SNIPPET = `import { init } from '@praveen-raj/vitalscope';
 init({
-  siteKey: 'vs_pub_your_site_key',
-  release: '1.0.0', // optional: compare releases
+  siteKey: 'vs_pub_your_site_key', release: '1.0.0'
 });`;
 
 const QUESTIONS = [
@@ -26,155 +40,403 @@ const QUESTIONS = [
   },
   {
     title: "Did the last release help?",
-    text: "Two releases side by side with the change in percent and the sample size, so you know when to trust it.",
-  },
-];
-
-const STEPS = [
-  {
-    title: "Add the SDK",
-    text: "One call to init() with your public site key. It reads the browser's own measurements through the web-vitals library.",
-  },
-  {
-    title: "It reports once, when the visit ends",
-    text: "Measurements are queued and sent in a single beacon when the page is hidden or closed, so it never competes with your page while it loads.",
-  },
-  {
-    title: "Read the numbers",
-    text: "The dashboard turns real visits into p75 values, trends, a histogram per page and a release comparison.",
+    text: "Two releases side by side, with the change in percent and the sample size, so you know when to trust it.",
   },
 ];
 
 const PROMISES = [
-  "No cookies, no IP addresses stored, no user ids and no full URLs with query strings.",
-  "The size budget is under 5 KB gzipped including web-vitals, and CI fails if it is exceeded.",
-  "It never throws on your page: every public function is wrapped, and it is silent unless debug is on.",
-  "Sampling is decided once per visit, so a page view is either fully measured or not at all.",
+  {
+    title: "Under 5 KB gzipped",
+    text: "Including web-vitals. CI fails if the size budget is exceeded.",
+  },
+  {
+    title: "Never throws",
+    text: "Every public function is wrapped, and it is silent unless debug is on.",
+  },
+  {
+    title: "No cookies",
+    text: "No IP addresses stored, no user ids and no full URLs with query strings.",
+  },
+  {
+    title: "Sends when the page is hidden",
+    text: "Measurements are queued and sent in a single beacon, so it never competes with your page while it loads.",
+  },
 ];
+
+/** Illustrative numbers for the hero card. They are labelled "Illustrative" and are not real data. */
+const PREVIEW = [
+  { metric: "LCP", value: "2.1 s", rating: "good" as const, label: "Good" },
+  {
+    metric: "INP",
+    value: "340 ms",
+    rating: "needs-improvement" as const,
+    label: "Needs improvement",
+  },
+  { metric: "CLS", value: "0.31", rating: "poor" as const, label: "Poor" },
+];
+
+function RatingIcon({
+  rating,
+}: {
+  rating: "good" | "needs-improvement" | "poor";
+}) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      {rating === "good" && (
+        <>
+          <circle cx="7" cy="7" r="7" fill="var(--color-vz-good)" />
+          <path
+            d="M4 7.2l2 2L10 5"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </>
+      )}
+      {rating === "needs-improvement" && (
+        <>
+          <path d="M7 .8L13.4 12.6H.6z" fill="var(--color-vz-warn)" />
+          <path
+            d="M7 5.2v3.4M7 10.2v.1"
+            stroke="#0b0b0b"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </>
+      )}
+      {rating === "poor" && (
+        <>
+          <rect
+            x="1"
+            y="1"
+            width="12"
+            height="12"
+            rx="2.5"
+            fill="var(--color-vz-bad)"
+            transform="rotate(45 7 7) scale(.86) translate(1 1)"
+          />
+          <path
+            d="M5 5l4 4M9 5l-4 4"
+            stroke="#fff"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function Logo({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 22 22" aria-hidden="true">
+      <circle
+        cx="11"
+        cy="11"
+        r="9.5"
+        fill="none"
+        stroke="#0b0b0b"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M4 12.5h3.5l2-5 3 8 2-4H18"
+        fill="none"
+        stroke="#2a78d6"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function GitHubMark() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.19c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+    </svg>
+  );
+}
+
+function NavLink({
+  href,
+  children,
+  strong = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  strong?: boolean;
+}) {
+  const cls = `flex min-h-11 items-center px-2.5 md:px-3 ${FOCUS} ${strong ? "font-medium text-vz-ink" : "text-vz-ink-2 hover:text-vz-ink"}`;
+  return href.startsWith("/") ? (
+    <Link href={href} className={cls}>
+      {children}
+    </Link>
+  ) : (
+    <a href={href} className={cls}>
+      {children}
+    </a>
+  );
+}
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12 text-vz-ink">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <span className="font-semibold">Vitalscope</span>
-        <nav aria-label="Main" className="flex gap-5 text-sm text-vz-ink-2">
-          <Link href="/demo" className="underline hover:text-vz-ink">
-            Demo
-          </Link>
-          <a href={GITHUB_URL} className="underline hover:text-vz-ink">
-            GitHub
-          </a>
-          <Link href="/login" className="underline hover:text-vz-ink">
-            Sign in
-          </Link>
-        </nav>
-      </header>
-
-      <section className="mt-16">
-        <h1 className="max-w-3xl text-4xl font-semibold leading-tight">
-          Real-user monitoring for Core Web Vitals
-        </h1>
-        <p className="mt-4 max-w-2xl text-lg text-vz-ink-2">
-          Lighthouse measures one run on one machine. Vitalscope shows what your
-          real visitors experience: on their phones, on their networks, on every
-          page, release after release.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+    <div
+      className={`${serif.variable} ${sans.variable} ${mono.variable} min-h-screen bg-vz-page font-sans text-vz-ink`}
+    >
+      <main className="mx-auto max-w-270 px-5 md:px-8 lg:px-0">
+        <header className="flex min-h-16 items-center justify-between md:h-21">
           <Link
-            href="/demo"
-            className="rounded-md bg-vz-ink px-5 py-2.5 text-sm font-medium text-vz-surface"
+            href="/"
+            className={`flex min-h-11 items-center gap-2 text-base font-medium tracking-tight md:gap-2.5 md:text-[17px] ${FOCUS}`}
           >
-            See the live demo
+            <Logo size={22} />
+            Vitalscope
           </Link>
-          <a
-            href={GITHUB_URL}
-            className="rounded-md border border-vz-axis px-5 py-2.5 text-sm font-medium hover:bg-vz-grid"
+          <nav aria-label="Main" className="flex text-sm md:text-[15px]">
+            <NavLink href="/demo">Demo</NavLink>
+            <NavLink href={GITHUB_URL}>GitHub</NavLink>
+            <NavLink href="/login" strong>
+              Sign in
+            </NavLink>
+          </nav>
+        </header>
+
+        <section className="grid items-center gap-9 pb-14 pt-10 md:pb-24 md:pt-18 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-18 lg:pb-26">
+          <div>
+            <p
+              className={`mb-3.5 text-[11px] font-medium uppercase tracking-[0.08em] text-vz-ink-2 md:mb-5 md:text-xs ${MONO}`}
+            >
+              Real-user monitoring · Core Web Vitals
+            </p>
+            <h1
+              className={`text-balance text-[40px] leading-[1.06] tracking-[-0.02em] md:text-6xl md:leading-[1.04] ${SERIF}`}
+            >
+              Real-user monitoring for Core Web Vitals
+            </h1>
+            <p className="mt-4.5 max-w-130 text-pretty text-base leading-[1.55] text-vz-ink-2 md:mt-6 md:text-[19px]">
+              Lighthouse measures one run on one machine. Vitalscope shows what
+              your real visitors experience: on their phones, on their networks,
+              on every page, release after release.
+            </p>
+            <div className="mt-7 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3 md:mt-9">
+              <Link
+                href="/demo"
+                className="flex min-h-12 items-center justify-center rounded-lg bg-vz-ink px-5.5 text-[15px] font-medium text-vz-surface transition-colors hover:bg-[#2b2a28] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-vz-series"
+              >
+                View live demo
+              </Link>
+              <Link
+                href="/login"
+                className="flex min-h-12 items-center justify-center gap-2.5 rounded-lg bg-vz-surface px-5.5 text-[15px] font-medium text-vz-ink shadow-[inset_0_0_0_1px_rgba(11,11,11,0.22)] hover:bg-[#f1f0ec] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-vz-series"
+              >
+                <GitHubMark />
+                Sign in with GitHub
+              </Link>
+            </div>
+            <p className="mt-3.5 text-[13px] text-vz-ink-2 md:mt-4 md:text-sm">
+              The demo runs on sample data and needs no sign-in.
+            </p>
+          </div>
+
+          <div
+            role="img"
+            aria-label="Illustrative dashboard preview: LCP 2.1 seconds good, INP 340 milliseconds needs improvement, CLS 0.31 poor"
+            className="rounded-[14px] bg-vz-surface p-3.5 shadow-[0_0_0_1px_rgba(11,11,11,0.10),0_18px_40px_-20px_rgba(11,11,11,0.18)] md:p-5"
           >
-            View on GitHub
-          </a>
-        </div>
-        <p className="mt-3 text-sm text-vz-ink-2">
-          The demo runs on sample data and needs no sign-in.
-        </p>
-      </section>
+            <div className="mb-2.5 flex items-baseline justify-between text-xs text-vz-ink-2 md:mb-3.5 md:text-[13px]">
+              <span className="font-medium text-vz-ink">p75 · last 7 days</span>
+              <span className={`text-xs ${MONO}`}>Illustrative</span>
+            </div>
+            <div className="flex flex-col gap-2 md:gap-2.5">
+              {PREVIEW.map((p) => (
+                <div
+                  key={p.metric}
+                  className="grid grid-cols-[1fr_auto] items-center gap-2 rounded-[10px] bg-vz-page px-3 py-3 shadow-[inset_0_0_0_1px_rgba(11,11,11,0.08)] md:px-4 md:py-3.5"
+                >
+                  <div>
+                    <div
+                      className={`text-[11px] font-medium tracking-[0.06em] text-vz-ink-2 md:text-xs ${MONO}`}
+                    >
+                      {p.metric}
+                    </div>
+                    <div
+                      className={`mt-0.5 text-[28px] leading-[1.1] tabular-nums md:mt-1 md:text-[34px] ${SERIF}`}
+                    >
+                      {p.value}
+                    </div>
+                    <div
+                      className={`mt-0.5 text-xs text-vz-ink-2 md:mt-1 ${MONO}`}
+                    >
+                      8,412 samples
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-vz-surface py-1.25 pl-2 pr-2.5 text-xs font-medium shadow-[inset_0_0_0_1px_rgba(11,11,11,0.14)] md:text-[13px]">
+                    <RatingIcon rating={p.rating} />
+                    {p.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      <section className="mt-20" aria-labelledby="questions">
-        <h2 id="questions" className="text-2xl font-semibold">
-          Three questions it answers
-        </h2>
-        <ul className="mt-6 grid gap-4 sm:grid-cols-3">
-          {QUESTIONS.map((q) => (
-            <li
-              key={q.title}
-              className="rounded-lg border border-vz-border bg-vz-surface p-5"
+        <section
+          aria-labelledby="questions"
+          className="border-t border-vz-border py-12 md:pb-24 md:pt-22"
+        >
+          <h2
+            id="questions"
+            className={`mb-5 text-[28px] leading-[1.12] tracking-[-0.015em] md:mb-9 md:text-4xl md:leading-[1.1] ${SERIF}`}
+          >
+            Three questions it answers
+          </h2>
+          <ol className="grid border-t border-vz-ink md:grid-cols-3">
+            {QUESTIONS.map((q, i) => (
+              <li
+                key={q.title}
+                className="border-b border-vz-border py-4.5 md:border-b-0 md:pb-2 md:pl-0 md:pr-7 md:pt-6"
+              >
+                <div
+                  className={`text-[11px] font-medium text-vz-ink-2 md:text-xs ${MONO}`}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="mb-1.5 mt-2 text-[17px] font-medium leading-[1.3] tracking-tight md:mb-2.5 md:mt-3 md:text-[19px]">
+                  {q.title}
+                </h3>
+                <p className="text-pretty text-[15px] leading-[1.6] text-vz-ink-2">
+                  {q.text}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section
+          aria-labelledby="install"
+          className="grid gap-4 pb-12 md:pb-24 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16"
+        >
+          <div>
+            <h2
+              id="install"
+              className={`mb-2.5 text-[28px] leading-[1.12] tracking-[-0.015em] md:mb-4 md:text-4xl md:leading-[1.1] ${SERIF}`}
             >
-              <h3 className="font-medium">{q.title}</h3>
-              <p className="mt-2 text-sm text-vz-ink-2">{q.text}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="mt-20" aria-labelledby="how">
-        <h2 id="how" className="text-2xl font-semibold">
-          How it works
-        </h2>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-3">
-          {STEPS.map((s, i) => (
-            <li
-              key={s.title}
-              className="rounded-lg border border-vz-border bg-vz-surface p-5"
+              Install
+            </h2>
+            <p className="text-pretty text-[15px] leading-[1.6] text-vz-ink-2 md:text-base">
+              Create a site in the dashboard to get your public site key, then
+              add this to your app.
+            </p>
+          </div>
+          <div className="flex min-w-0 flex-col gap-3 md:gap-3.5">
+            <div
+              className={`flex items-center justify-between gap-2 rounded-[10px] bg-vz-surface py-1 pl-3 pr-1 text-[12.5px] shadow-[inset_0_0_0_1px_rgba(11,11,11,0.10)] md:pl-4.5 md:text-sm ${MONO}`}
             >
-              <span className="text-sm text-vz-muted">Step {i + 1}</span>
-              <h3 className="mt-1 font-medium">{s.title}</h3>
-              <p className="mt-2 text-sm text-vz-ink-2">{s.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+              <span className="min-w-0 wrap-anywhere">
+                <span className="text-vz-muted" aria-hidden="true">
+                  ${" "}
+                </span>
+                {INSTALL_COMMAND}
+              </span>
+              <CopyButton
+                text={INSTALL_COMMAND}
+                ariaLabel="Copy install command"
+                className={`min-h-11 min-w-11 shrink-0 rounded-[7px] px-2.5 text-[13px] font-medium hover:bg-[#efeee9] md:px-3.5 ${FOCUS}`}
+              />
+            </div>
+            <div className="overflow-hidden rounded-xl bg-vz-ink text-[#f1f0ec]">
+              <div
+                className={`flex items-center justify-between pl-4 pr-1 pt-1 text-xs font-medium text-[#9d9b93] md:pl-7 md:pt-2 ${MONO}`}
+              >
+                <span>app.ts</span>
+                <CopyButton
+                  text={SNIPPET}
+                  ariaLabel="Copy code snippet"
+                  className="min-h-11 min-w-11 rounded-[7px] px-3 font-sans text-[13px] font-medium text-vz-surface hover:bg-white/15 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"
+                />
+              </div>
+              <pre
+                className={`overflow-auto whitespace-pre-wrap wrap-anywhere px-4 pb-5 pt-1.5 text-[12.5px] leading-[1.75] md:px-7 md:pb-6 md:text-[15px] ${MONO}`}
+              >
+                <code>
+                  <span className="text-[#9d9b93]">import</span> {"{ init }"}{" "}
+                  <span className="text-[#9d9b93]">from</span>{" "}
+                  <span className="text-[#8ec0ff]">
+                    &apos;@praveen-raj/vitalscope&apos;
+                  </span>
+                  ;{"\n"}
+                  init({"{"}
+                  {"\n"}
+                  {"  siteKey: "}
+                  <span className="text-[#8ec0ff]">
+                    &apos;vs_pub_your_site_key&apos;
+                  </span>
+                  {", release: "}
+                  <span className="text-[#8ec0ff]">&apos;1.0.0&apos;</span>
+                  {"\n"}
+                  {"}"});
+                </code>
+              </pre>
+            </div>
+            {!NPM_PUBLISHED && (
+              <p role="note" className="text-sm text-vz-ink-2">
+                <strong className="text-vz-ink">Not published yet.</strong> The
+                package is not on npm yet, so this snippet will not install
+                today. The source is on GitHub.
+              </p>
+            )}
+          </div>
+        </section>
 
-      <section className="mt-20" aria-labelledby="install">
-        <h2 id="install" className="text-2xl font-semibold">
-          Install
-        </h2>
-        <p className="mt-2 text-vz-ink-2">
-          Create a site in the dashboard to get your public site key, then add
-          this to your app.
-        </p>
-        <pre className="mt-4 overflow-x-auto rounded-lg border border-vz-border bg-vz-surface p-4 text-sm">
-          <code>{SNIPPET}</code>
-        </pre>
-        {!NPM_PUBLISHED && (
-          <p role="note" className="mt-3 text-sm text-vz-ink-2">
-            <strong className="text-vz-ink">Not published yet.</strong> The
-            package is not on npm yet, so this snippet will not install today.
-            The source is on GitHub.
-          </p>
-        )}
-      </section>
+        <section
+          aria-labelledby="promises"
+          className="grid gap-6 border-t border-vz-border py-12 md:pb-24 md:pt-22 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16"
+        >
+          <h2
+            id="promises"
+            className={`text-[28px] leading-[1.12] tracking-[-0.015em] md:text-4xl md:leading-[1.1] ${SERIF}`}
+          >
+            Built to stay out of the way
+          </h2>
+          <ul className="grid gap-5.5 md:grid-cols-2 md:gap-x-10 md:gap-y-8">
+            {PROMISES.map((p) => (
+              <li key={p.title}>
+                <div
+                  className={`text-2xl leading-[1.1] tracking-[-0.01em] md:text-[30px] ${SERIF}`}
+                >
+                  {p.title}
+                </div>
+                <p className="mt-1.5 text-pretty text-[15px] leading-[1.6] text-vz-ink-2 md:mt-2">
+                  {p.text}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      <section className="mt-20" aria-labelledby="promises">
-        <h2 id="promises" className="text-2xl font-semibold">
-          Built to stay out of the way
-        </h2>
-        <ul className="mt-6 list-disc space-y-2 pl-5 text-vz-ink-2">
-          {PROMISES.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ul>
-      </section>
-
-      <footer className="mt-20 flex flex-wrap items-center justify-between gap-3 border-t border-vz-grid pt-6 text-sm text-vz-ink-2">
-        <span>Vitalscope is open source.</span>
-        <nav aria-label="Footer" className="flex gap-5">
-          <Link href="/demo" className="underline hover:text-vz-ink">
-            Demo
-          </Link>
-          <a href={GITHUB_URL} className="underline hover:text-vz-ink">
-            GitHub
-          </a>
-        </nav>
-      </footer>
-    </main>
+        <footer className="flex min-h-18 items-center justify-between border-t border-vz-border text-[13px] text-vz-ink-2 md:min-h-22 md:text-sm">
+          <span>Vitalscope · MIT licence</span>
+          <nav aria-label="Footer" className="flex">
+            <NavLink href="/demo">Demo</NavLink>
+            <NavLink href={GITHUB_URL}>GitHub</NavLink>
+          </nav>
+        </footer>
+      </main>
+    </div>
   );
 }
