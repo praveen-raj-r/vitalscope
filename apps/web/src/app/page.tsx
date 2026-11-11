@@ -75,18 +75,27 @@ export default function Home() {
           Real-user monitoring for Core Web Vitals
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-vz-ink-2">
-          Lighthouse measures one run on one machine. Vitalscope shows what your real visitors experience: on their
-          phones, on their networks, on every page, release after release.
+          Lighthouse measures one run on one machine. Vitalscope shows what your
+          real visitors experience: on their phones, on their networks, on every
+          page, release after release.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/demo" className="rounded-md bg-vz-ink px-5 py-2.5 text-sm font-medium text-vz-surface">
+          <Link
+            href="/demo"
+            className="rounded-md bg-vz-ink px-5 py-2.5 text-sm font-medium text-vz-surface"
+          >
             See the live demo
           </Link>
-          <a href={GITHUB_URL} className="rounded-md border border-vz-axis px-5 py-2.5 text-sm font-medium hover:bg-vz-grid">
+          <a
+            href={GITHUB_URL}
+            className="rounded-md border border-vz-axis px-5 py-2.5 text-sm font-medium hover:bg-vz-grid"
+          >
             View on GitHub
           </a>
         </div>
-        <p className="mt-3 text-sm text-vz-ink-2">The demo runs on sample data and needs no sign-in.</p>
+        <p className="mt-3 text-sm text-vz-ink-2">
+          The demo runs on sample data and needs no sign-in.
+        </p>
       </section>
 
       <section className="mt-20" aria-labelledby="questions">
@@ -95,7 +104,10 @@ export default function Home() {
         </h2>
         <ul className="mt-6 grid gap-4 sm:grid-cols-3">
           {QUESTIONS.map((q) => (
-            <li key={q.title} className="rounded-lg border border-vz-border bg-vz-surface p-5">
+            <li
+              key={q.title}
+              className="rounded-lg border border-vz-border bg-vz-surface p-5"
+            >
               <h3 className="font-medium">{q.title}</h3>
               <p className="mt-2 text-sm text-vz-ink-2">{q.text}</p>
             </li>
@@ -109,7 +121,10 @@ export default function Home() {
         </h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-3">
           {STEPS.map((s, i) => (
-            <li key={s.title} className="rounded-lg border border-vz-border bg-vz-surface p-5">
+            <li
+              key={s.title}
+              className="rounded-lg border border-vz-border bg-vz-surface p-5"
+            >
               <span className="text-sm text-vz-muted">Step {i + 1}</span>
               <h3 className="mt-1 font-medium">{s.title}</h3>
               <p className="mt-2 text-sm text-vz-ink-2">{s.text}</p>
@@ -123,15 +138,17 @@ export default function Home() {
           Install
         </h2>
         <p className="mt-2 text-vz-ink-2">
-          Create a site in the dashboard to get your public site key, then add this to your app.
+          Create a site in the dashboard to get your public site key, then add
+          this to your app.
         </p>
         <pre className="mt-4 overflow-x-auto rounded-lg border border-vz-border bg-vz-surface p-4 text-sm">
           <code>{SNIPPET}</code>
         </pre>
         {!NPM_PUBLISHED && (
           <p role="note" className="mt-3 text-sm text-vz-ink-2">
-            <strong className="text-vz-ink">Not published yet.</strong> The package is not on npm yet, so this snippet
-            will not install today. The source is on GitHub.
+            <strong className="text-vz-ink">Not published yet.</strong> The
+            package is not on npm yet, so this snippet will not install today.
+            The source is on GitHub.
           </p>
         )}
       </section>
