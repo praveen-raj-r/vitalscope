@@ -1,5 +1,9 @@
 # Vitalscope
 
+[![CI](https://github.com/praveen-raj-r/vitalscope/actions/workflows/ci.yml/badge.svg)](https://github.com/praveen-raj-r/vitalscope/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@praveen-raj/vitalscope)](https://www.npmjs.com/package/@praveen-raj/vitalscope)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Real-user monitoring for Core Web Vitals: a tiny SDK plus a dashboard. See [vitalscope-spec.md](vitalscope-spec.md).
 
 - **Live demo (sample data, no sign-in):** https://vitalscope-rum.vercel.app/demo
