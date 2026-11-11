@@ -25,13 +25,13 @@ export function SiteTabs({ basePath }: { basePath: string }) {
   ];
 
   return (
-    <nav aria-label="Site sections" className="mt-4 flex gap-1 border-b border-vz-grid">
+    <nav aria-label="Site sections" className="flex gap-3.5 border-b border-vz-grid md:gap-5">
       {tabs.map((t) => (
         <Link
           key={t.label}
           href={`${t.href}${qs}`}
           aria-current={t.active ? "page" : undefined}
-          className={`-mb-px border-b-2 px-3 py-2 text-sm ${t.active ? "border-vz-ink font-medium text-vz-ink" : "border-transparent text-vz-ink-2 hover:text-vz-ink"}`}
+          className={`-mb-px flex min-h-12 items-center border-b-2 px-1 text-[15px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-vz-series ${t.active ? "border-vz-ink font-semibold text-vz-ink" : "border-transparent text-vz-ink-2 hover:text-vz-ink"}`}
         >
           {t.label}
         </Link>

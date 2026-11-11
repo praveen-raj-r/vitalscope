@@ -6,14 +6,42 @@ const COLORS: Record<Rating, string> = {
   poor: "var(--color-vz-bad)",
 };
 
-/** A distinct shape per rating (circle, triangle, square), so the state never rests on colour alone. */
+/** A distinct shape per rating (circle, triangle, diamond), so the state never rests on colour alone. */
 export function RatingShape({ rating, size = 12 }: { rating: Rating; size?: number }) {
   const fill = COLORS[rating];
   return (
-    <svg width={size} height={size} viewBox="0 0 12 12" aria-hidden="true" className="shrink-0">
-      {rating === "good" && <circle cx="6" cy="6" r="5" fill={fill} />}
-      {rating === "needs-improvement" && <path d="M6 1 L11.5 11 H0.5 Z" fill={fill} />}
-      {rating === "poor" && <rect x="1" y="1" width="10" height="10" rx="1.5" fill={fill} />}
+    <svg width={size} height={size} viewBox="0 0 14 14" aria-hidden="true" className="shrink-0">
+      {rating === "good" && <circle cx="7" cy="7" r="7" fill={fill} />}
+      {rating === "needs-improvement" && <path d="M7 .8L13.4 12.6H.6z" fill={fill} />}
+      {rating === "poor" && (
+        <rect x="1" y="1" width="12" height="12" rx="2" fill={fill} transform="rotate(45 7 7) scale(.86) translate(1 1)" />
+      )}
+    </svg>
+  );
+}
+
+/** The shape with a mark inside (check, exclamation, cross), used in the larger rating pill. */
+function RatingGlyph({ rating }: { rating: Rating }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" className="shrink-0">
+      {rating === "good" && (
+        <>
+          <circle cx="7" cy="7" r="7" fill={COLORS.good} />
+          <path d="M4 7.2l2 2L10 5" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </>
+      )}
+      {rating === "needs-improvement" && (
+        <>
+          <path d="M7 .8L13.4 12.6H.6z" fill={COLORS["needs-improvement"]} />
+          <path d="M7 5.2v3.4M7 10.2v.1" stroke="#0b0b0b" strokeWidth="1.5" strokeLinecap="round" />
+        </>
+      )}
+      {rating === "poor" && (
+        <>
+          <rect x="1" y="1" width="12" height="12" rx="2.5" fill={COLORS.poor} transform="rotate(45 7 7) scale(.86) translate(1 1)" />
+          <path d="M5 5l4 4M9 5l-4 4" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+        </>
+      )}
     </svg>
   );
 }
@@ -23,6 +51,16 @@ export function RatingBadge({ rating }: { rating: Rating }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-vz-ink">
       <RatingShape rating={rating} />
+      {RATING_LABELS[rating]}
+    </span>
+  );
+}
+
+/** Outlined pill with a glyph, for the headline tiles. */
+export function RatingPill({ rating }: { rating: Rating }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-vz-page py-1 pr-2.5 pl-2 text-[13px] font-medium shadow-[inset_0_0_0_1px_rgb(11_11_11/0.14)]">
+      <RatingGlyph rating={rating} />
       {RATING_LABELS[rating]}
     </span>
   );
