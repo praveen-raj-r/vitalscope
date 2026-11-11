@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteTabs } from "@/components/site-tabs";
+import { isDemoSite } from "@/lib/demo";
 import { isUuid } from "@/lib/sites";
 import { createClient } from "@/lib/supabase/server";
 import { FOCUS, MONO, SERIF } from "@/lib/ui";
@@ -44,7 +45,7 @@ export default async function SiteLayout({
       </p>
       <SiteTabs basePath={`/app/sites/${id}`} />
       <div className="mt-6">{children}</div>
-      <DeleteSite id={id} name={site.name} />
+      <DeleteSite id={id} name={site.name} isDemo={isDemoSite(id)} />
     </div>
   );
 }
