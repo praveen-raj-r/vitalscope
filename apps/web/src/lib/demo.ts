@@ -9,3 +9,9 @@ export function demoSiteId(value: string | undefined = process.env.DEMO_SITE_ID)
   const id = value?.trim();
   return id && isUuid(id) ? id : null;
 }
+
+/** True when `id` is the public demo's site. That site must never be deleted from the dashboard, or the demo breaks. */
+export function isDemoSite(id: string, configured: string | undefined = process.env.DEMO_SITE_ID): boolean {
+  const demo = demoSiteId(configured);
+  return demo !== null && demo.toLowerCase() === id.toLowerCase();
+}

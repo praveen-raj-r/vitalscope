@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { isDemoSite } from "@/lib/demo";
 import { createClient } from "@/lib/supabase/server";
-import { createSiteSchema, parseOrigins } from "@/lib/sites";
+import { confirmationMatches, createSiteSchema, isUuid, parseOrigins } from "@/lib/sites";
 
 export type CreateSiteState = {
   error?: string;
@@ -34,4 +36,32 @@ export async function createSite(_prev: CreateSiteState, formData: FormData): Pr
 
   revalidatePath("/app");
   return { site: { name: data.name, siteKey: data.site_key } };
+}
+
+export type DeleteSiteState = { error?: string };
+
+/**
+ * Deletes one of the signed-in user's sites. Row-level security only lets an owner see and delete their own
+ * sites, and the foreign keys (on delete cascade) remove the site's events and rollups with it. Two extra guards:
+ * the public demo's site can never be deleted, and the caller must type the site's exact name.
+ */
+export async function deleteSite(_prev: DeleteSiteState, formData: FormData): Promise<DeleteSiteState> {
+  const id = String(formData.get("id") ?? "");
+  const typed = String(formData.get("confirm") ?? "");
+  if (!isUuid(id)) return { error: "Invalid site" };
+  if (isDemoSite(id)) return { error: "This site powers the public demo and cannot be deleted here." };
+
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { error: "Not signed in" };
+
+  const { data: site } = await supabase.from("sites").select("name").eq("id", id).maybeSingle();
+  if (!site) return { error: "Site not found" };
+  if (!confirmationMatches(site.name, typed)) return { error: "That does not match the site name" };
+
+  const { data: deleted, error } = await supabase.from("sites").delete().eq("id", id).select("id");
+  if (error || !deleted || deleted.length === 0) return { error: "Could not delete site" };
+
+  revalidatePath("/app");
+  redirect("/app");
 }

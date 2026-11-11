@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createSiteSchema, installSnippet, parseOrigins } from "./sites";
+import { isDemoSite } from "./demo";
+import { confirmationMatches, createSiteSchema, installSnippet, parseOrigins } from "./sites";
 
 describe("parseOrigins", () => {
   it("normalises, dedupes and strips paths", () => {
@@ -51,5 +52,33 @@ describe("demoSiteId", () => {
     expect(demoSiteId("")).toBeNull();
     expect(demoSiteId("Sample data")).toBeNull();
     expect(demoSiteId("f721123f-2c82-4476-a029-3bc71cf4d3d9,other")).toBeNull();
+  });
+});
+
+describe("confirmationMatches", () => {
+  it("needs the exact site name, ignoring surrounding spaces", () => {
+    expect(confirmationMatches("scratch", "scratch")).toBe(true);
+    expect(confirmationMatches("scratch", "  scratch  ")).toBe(true);
+    expect(confirmationMatches("  scratch ", "scratch")).toBe(true);
+  });
+  it("rejects a different case, a partial name and an empty entry", () => {
+    expect(confirmationMatches("scratch", "Scratch")).toBe(false);
+    expect(confirmationMatches("scratch", "scra")).toBe(false);
+    expect(confirmationMatches("scratch", "")).toBe(false);
+    expect(confirmationMatches("scratch", "   ")).toBe(false);
+  });
+});
+
+describe("isDemoSite", () => {
+  const DEMO = "f721123f-2c82-4476-a029-3bc71cf4d3d9";
+  it("is true only for the configured demo site, whatever the letter case", () => {
+    expect(isDemoSite(DEMO, DEMO)).toBe(true);
+    expect(isDemoSite(DEMO.toUpperCase(), DEMO)).toBe(true);
+    expect(isDemoSite("00000000-0000-4000-8000-000000000000", DEMO)).toBe(false);
+  });
+  it("is false when the demo is not configured or misconfigured", () => {
+    expect(isDemoSite(DEMO, undefined)).toBe(false);
+    expect(isDemoSite(DEMO, "")).toBe(false);
+    expect(isDemoSite(DEMO, "Sample data")).toBe(false);
   });
 });

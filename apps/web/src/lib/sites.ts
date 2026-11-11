@@ -30,3 +30,8 @@ export function installSnippet(siteKey: string, endpoint: string): string {
 export function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
+
+/** Deleting a site requires typing its exact name (surrounding spaces ignored, case must match). */
+export function confirmationMatches(siteName: string, typed: string): boolean {
+  return typed.trim() !== "" && typed.trim() === siteName.trim();
+}

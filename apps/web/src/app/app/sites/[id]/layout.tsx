@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteTabs } from "@/components/site-tabs";
 import { isUuid } from "@/lib/sites";
 import { createClient } from "@/lib/supabase/server";
+import { DeleteSite } from "./delete-site";
 
 export default async function SiteLayout({
   children,
@@ -28,6 +29,7 @@ export default async function SiteLayout({
       <p className="text-xs text-neutral-500">{site.allowed_origins.join(", ")}</p>
       <SiteTabs basePath={`/app/sites/${id}`} />
       <div className="mt-6">{children}</div>
+      <DeleteSite id={id} name={site.name} />
     </div>
   );
 }
