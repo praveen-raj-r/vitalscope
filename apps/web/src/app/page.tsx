@@ -32,6 +32,29 @@ const QUESTIONS = [
   },
 ];
 
+const STEPS = [
+  {
+    title: "Add your site",
+    text: "Sign in with GitHub, name your site and list the origins allowed to report, such as https://example.com. Copy the public site key.",
+  },
+  {
+    title: "Install the SDK",
+    text: "Run npm install, then call init once in your app with the site key and your release. It is one call, and it never throws.",
+    href: "#install",
+    link: "See the code",
+  },
+  {
+    title: "Visit your site",
+    text: "Open it, use it a little, then leave the page. Measurements are sent when a page is hidden, not while it loads.",
+  },
+  {
+    title: "Read the dashboard",
+    text: "Overview, pages, page detail and releases, with filters for time range, device and release. Lower is better for all three.",
+    href: "/demo",
+    link: "Try the demo",
+  },
+];
+
 const PROMISES = [
   {
     title: "Under 5 KB gzipped",
@@ -279,8 +302,62 @@ export default function Home() {
         </section>
 
         <section
+          aria-labelledby="how-to-use"
+          className="border-t border-vz-border py-12 md:pb-24 md:pt-22"
+        >
+          <h2
+            id="how-to-use"
+            className={`mb-2.5 text-[28px] leading-[1.12] tracking-[-0.015em] md:mb-3 md:text-4xl md:leading-[1.1] ${SERIF}`}
+          >
+            How to use it
+          </h2>
+          <p className="mb-5 max-w-130 text-pretty text-[15px] leading-[1.6] text-vz-ink-2 md:mb-9 md:text-base">
+            From nothing to your first numbers in four steps.
+          </p>
+          <ol className="grid border-t border-vz-ink md:grid-cols-4">
+            {STEPS.map((step, i) => (
+              <li
+                key={step.title}
+                className="border-b border-vz-border py-4.5 md:border-b-0 md:pb-2 md:pl-0 md:pr-6 md:pt-6"
+              >
+                <div
+                  className={`text-[11px] font-medium text-vz-ink-2 md:text-xs ${MONO}`}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="mb-1.5 mt-2 text-[17px] font-medium leading-[1.3] tracking-tight md:mb-2.5 md:mt-3 md:text-[19px]">
+                  {step.title}
+                </h3>
+                <p className="text-pretty text-[15px] leading-[1.6] text-vz-ink-2">
+                  {step.text}
+                </p>
+                {step.href && (
+                  <Link
+                    href={step.href}
+                    className={`mt-2 inline-flex min-h-11 items-center text-[15px] font-medium text-vz-ink underline underline-offset-[3px] hover:text-vz-series ${FOCUS}`}
+                  >
+                    {step.link} →
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ol>
+          <p className="mt-5 text-pretty text-sm leading-[1.6] text-vz-ink-2 md:mt-7">
+            Not seeing data? Check that the page&apos;s origin matches an
+            allowed origin exactly, and that you left or hid the page once. The{" "}
+            <a
+              href={`${GITHUB_URL}#not-seeing-data`}
+              className={`font-medium text-vz-ink underline underline-offset-[3px] hover:text-vz-series ${FOCUS}`}
+            >
+              troubleshooting list
+            </a>{" "}
+            has the rest.
+          </p>
+        </section>
+
+        <section
           aria-labelledby="install"
-          className="grid gap-4 pb-12 md:pb-24 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16"
+          className="grid gap-4 border-t border-vz-border py-12 md:pb-24 md:pt-22 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-16"
         >
           <div>
             <h2
