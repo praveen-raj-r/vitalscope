@@ -51,6 +51,99 @@ init({ siteKey: 'vs_pub_your_site_key', release: '1.0.0' });
 
 More in the [SDK README](packages/sdk/README.md).
 
+## How to use
+
+From zero to your first numbers, in five steps.
+
+### 1. Sign in and add your site
+
+1. Open the [dashboard](https://vitalscope-rum.vercel.app/login) and choose **Continue with GitHub**. Vitalscope only reads your public profile.
+2. Under **Add site**, enter a **name** and the **allowed origins**, one per line, for example `https://www.example.com`. Only pages on these origins can send data for the site.
+   - An origin is scheme + host (+ port), with no path: `https://example.com`, not `https://example.com/shop`.
+   - Add `http://localhost:3000` too if you want to try it while developing.
+3. Copy the **public site key** (`vs_pub_…`). It is safe to put in your front-end code.
+
+### 2. Install the SDK
+
+```bash
+npm install @praveen-raj/vitalscope
+```
+
+### 3. Start it once in your app
+
+Pick the setup that matches your app. Set `release` to your version; it is what the release comparison uses.
+
+**Next.js (App Router).** `init` must run in the browser, so put it in a small client component and render it in `app/layout.tsx`:
+
+```tsx
+// app/vitalscope.tsx
+"use client";
+import { useEffect } from "react";
+import { init } from "@praveen-raj/vitalscope";
+
+export function Vitalscope() {
+  useEffect(() => {
+    init({ siteKey: "vs_pub_your_site_key", release: "1.0.0" });
+  }, []);
+  return null;
+}
+```
+
+**Vite, React, Vue or any bundled app.** Call it once at start-up, for example in `main.ts`:
+
+```ts
+import { init } from "@praveen-raj/vitalscope";
+
+init({ siteKey: "vs_pub_your_site_key", release: "1.0.0" });
+```
+
+**Plain HTML, no bundler:**
+
+```html
+<script src="https://unpkg.com/@praveen-raj/vitalscope/dist/vitalscope.global.js"></script>
+<script>
+  Vitalscope.init({ siteKey: "vs_pub_your_site_key", release: "1.0.0" });
+</script>
+```
+
+Useful options (all in the [SDK README](packages/sdk/README.md#options)): `sampleRate` (0 to 1, to measure only some page views), `routePattern` (turn `/blog/123` into `/blog/:id` so pages group together) and `debug` (log problems to the console).
+
+### 4. Deploy and visit your site
+
+The SDK sends its measurements **when a visitor leaves or hides the page**, not while it loads. So open your site, use it a little, then switch tab or close it. The numbers appear in the dashboard shortly after.
+
+### 5. Read the dashboard
+
+Open your site from **My sites**. Use the **Time range**, **Device** and **Release** filters at the top; they apply to everything on the page.
+
+| Tab | Answers |
+|---|---|
+| **Overview** | How fast is the site? The p75 of LCP, INP and CLS with a rating, the share of good / needs improvement / poor visits, and a trend per day. |
+| **Pages** | Which pages are slowest? Click a column to sort, click a page for its detail. |
+| **Page detail** | Why is this page slow? A distribution per metric, and the elements or interactions behind the bad numbers. |
+| **Releases** | Did the last release help? Two releases side by side, with the change and the sample size. Needs two different `release` values. |
+
+How to read the numbers:
+- **p75** means three out of four visits were as fast as this or faster. It is the figure Google uses.
+- **Ratings** are Good, Needs improvement or Poor, always shown with a shape and a word, not just a colour.
+- **Not enough data (need 30, have N):** a number backed by fewer than 30 samples is never given a rating. Wait for more traffic, or widen the time range.
+- **Lower is better** for all three metrics.
+
+To compare releases, change `release` with each deploy (`"1.0.0"`, then `"1.1.0"`) and give each some traffic.
+
+### Not seeing data?
+
+| Check | Why |
+|---|---|
+| Did you leave or hide the page? | Reports are sent when the page is hidden, not while it loads. |
+| Does the page's origin exactly match an allowed origin? | `https://example.com` and `https://www.example.com` are different origins. A mismatch is rejected. |
+| Is the site key right, and is `init` called in the browser? | In Next.js it must run in a client component, not on the server. |
+| Open the browser's Network tab | Look for a request to `/api/ingest`. `204` means accepted; `403` means the origin is not allowed; `404` means the site key is unknown. |
+| Try `debug: true` | The SDK then logs why it skipped sending. |
+| Self-hosting? | Set `endpoint` to your own `/api/ingest` URL. |
+
+To take a look without installing anything, open the **[live demo](https://vitalscope-rum.vercel.app/demo)**: it has the same tabs on sample data.
+
 ## How it works
 
 ```
