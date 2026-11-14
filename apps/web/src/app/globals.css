@@ -74,3 +74,21 @@
 html {
   scroll-padding-top: 5rem;
 }
+
+/* Login page backdrop: the pulse line draws itself once, slowly. Static when motion is reduced. */
+@keyframes pulse-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulse-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: pulse-draw 3.2s ease-out 0.3s forwards;
+  }
+}
