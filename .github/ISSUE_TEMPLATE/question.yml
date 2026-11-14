@@ -1,0 +1,20 @@
+name: Question
+description: Ask how to use or set up Vitalscope
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please look at the [How to use](https://github.com/praveen-raj-r/vitalscope#how-to-use) section and the [development guide](https://github.com/praveen-raj-r/vitalscope/blob/main/docs/development.md) first. If your question is about data not showing up, the "Not seeing data?" table has the usual causes.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: What have you tried?
+      description: What you set up (framework, hosted or self-hosted) and what you already checked.

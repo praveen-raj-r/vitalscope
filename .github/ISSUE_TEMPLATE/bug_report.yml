@@ -1,0 +1,77 @@
+name: Bug report
+description: Something is not working as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. **Security problems should not go here**: please use [Report a vulnerability](https://github.com/praveen-raj-r/vitalscope/security/advisories/new) instead.
+        Never paste secrets or full site keys you want to keep private. A public site key (`vs_pub_…`) is fine.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where is the problem?
+      options:
+        - SDK (@praveen-raj/vitalscope)
+        - Ingest (/api/ingest) or no data arriving
+        - Dashboard (signed in)
+        - Public demo
+        - Release comparison
+        - Sign-in
+        - Documentation
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect to see instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Click …
+        3. See …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SDK version
+      description: Only if the problem involves the SDK. Run `npm ls @praveen-raj/vitalscope`.
+      placeholder: "0.1.0"
+  - type: textarea
+    id: init
+    attributes:
+      label: Your `init` call
+      description: With the site key left as `vs_pub_…` if you prefer. Include `release`, `sampleRate` and `routePattern` if you set them.
+      render: ts
+  - type: textarea
+    id: network
+    attributes:
+      label: What the Network tab shows
+      description: For "no data" problems. Look for the request to `/api/ingest` after you leave or hide the page. What status code did it get (204, 400, 403, 404, 413, 429)?
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: "Chrome 130 on Android 15"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: "Screenshots, console errors (with `debug: true` on), or a link to a page that shows the problem."
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before sending
+      options:
+        - label: I checked the "Not seeing data?" list in the README (origin matches exactly, and I left or hid the page once).
+        - label: This is not a security issue.
+          required: true
