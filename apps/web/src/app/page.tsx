@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GitHubMark, Logo } from "@/components/brand";
+import {
+  GitHubMark,
+  IconArrowUp,
+  IconBook,
+  IconBox,
+  IconBug,
+  IconPlay,
+  IconScale,
+  IconSignIn,
+  Logo,
+} from "@/components/brand";
 import { CopyButton } from "@/components/copy-button";
 import { InstallCommand } from "@/components/install-command";
-import { GITHUB_URL, NPM_PUBLISHED } from "@/lib/site-config";
+import { GITHUB_URL, NPM_PUBLISHED, NPM_URL } from "@/lib/site-config";
 import { FOCUS, MONO, SANS, SERIF } from "@/lib/ui";
 
 export const metadata: Metadata = {
@@ -150,18 +160,45 @@ function NavLink({
   href,
   children,
   strong = false,
+  icon,
 }: {
   href: string;
   children: React.ReactNode;
   strong?: boolean;
+  icon?: React.ReactNode;
 }) {
-  const cls = `flex min-h-11 items-center px-2.5 md:px-3 ${FOCUS} ${strong ? "font-medium text-vz-ink" : "text-vz-ink-2 hover:text-vz-ink"}`;
+  const cls = `flex min-h-11 items-center gap-1.5 px-2.5 md:px-3 ${FOCUS} ${strong ? "font-medium text-vz-ink" : "text-vz-ink-2 hover:text-vz-ink"}`;
   return href.startsWith("/") ? (
     <Link href={href} className={cls}>
+      {icon && <span className="hidden sm:block">{icon}</span>}
       {children}
     </Link>
   ) : (
     <a href={href} className={cls}>
+      {icon && <span className="hidden sm:block">{icon}</span>}
+      {children}
+    </a>
+  );
+}
+
+function FooterLink({
+  href,
+  icon,
+  children,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const cls = `inline-flex min-h-11 items-center gap-2 text-[15px] text-vz-ink-2 hover:text-vz-ink ${FOCUS}`;
+  return href.startsWith("/") || href.startsWith("#") ? (
+    <Link href={href} className={cls}>
+      {icon}
+      {children}
+    </Link>
+  ) : (
+    <a href={href} className={cls}>
+      {icon}
       {children}
     </a>
   );
@@ -169,11 +206,9 @@ function NavLink({
 
 export default function Home() {
   return (
-    <div
-      className={`min-h-screen bg-vz-page text-vz-ink ${SANS}`}
-    >
-      <main className="mx-auto max-w-270 px-5 md:px-8 lg:px-0">
-        <header className="flex min-h-16 items-center justify-between md:h-21">
+    <div id="top" className={`min-h-screen bg-vz-page text-vz-ink ${SANS}`}>
+      <header className="sticky top-0 z-20 border-b border-vz-border bg-vz-page/85 backdrop-blur-md supports-backdrop-filter:bg-vz-page/75">
+        <div className="mx-auto flex min-h-16 max-w-270 items-center justify-between px-5 md:h-18 md:px-8 lg:px-0">
           <Link
             href="/"
             className={`flex min-h-11 items-center gap-2 text-base font-medium tracking-tight md:gap-2.5 md:text-[17px] ${FOCUS}`}
@@ -182,14 +217,20 @@ export default function Home() {
             Vitalscope
           </Link>
           <nav aria-label="Main" className="flex text-sm md:text-[15px]">
-            <NavLink href="/demo">Demo</NavLink>
-            <NavLink href={GITHUB_URL}>GitHub</NavLink>
-            <NavLink href="/login" strong>
+            <NavLink href="/demo" icon={<IconPlay />}>
+              Demo
+            </NavLink>
+            <NavLink href={GITHUB_URL} icon={<GitHubMark size={16} />}>
+              GitHub
+            </NavLink>
+            <NavLink href="/login" strong icon={<IconSignIn />}>
               Sign in
             </NavLink>
           </nav>
-        </header>
+        </div>
+      </header>
 
+      <main className="mx-auto max-w-270 px-5 md:px-8 lg:px-0">
         <section className="grid items-center gap-9 pb-14 pt-10 md:pb-24 md:pt-18 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-18 lg:pb-26">
           <div>
             <p
@@ -210,8 +251,9 @@ export default function Home() {
             <div className="mt-7 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3 md:mt-9">
               <Link
                 href="/demo"
-                className="flex min-h-12 items-center justify-center rounded-lg bg-vz-ink px-5.5 text-[15px] font-medium text-vz-surface transition-colors hover:bg-[#2b2a28] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-vz-series"
+                className="flex min-h-12 items-center justify-center gap-2.5 rounded-lg bg-vz-ink px-5.5 text-[15px] font-medium text-vz-surface transition-colors hover:bg-[#2b2a28] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-vz-series"
               >
+                <IconPlay size={18} />
                 View live demo
               </Link>
               <Link
@@ -442,15 +484,117 @@ export default function Home() {
             ))}
           </ul>
         </section>
-
-        <footer className="flex min-h-18 items-center justify-between border-t border-vz-border text-[13px] text-vz-ink-2 md:min-h-22 md:text-sm">
-          <span>Vitalscope · MIT licence</span>
-          <nav aria-label="Footer" className="flex">
-            <NavLink href="/demo">Demo</NavLink>
-            <NavLink href={GITHUB_URL}>GitHub</NavLink>
-          </nav>
-        </footer>
       </main>
+
+      <footer className="border-t border-vz-border bg-vz-surface">
+        <div className="mx-auto max-w-270 px-5 py-10 md:px-8 md:py-14 lg:px-0">
+          <div className="grid gap-9 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))] md:gap-10">
+            <div>
+              <Link
+                href="/"
+                className={`inline-flex min-h-11 items-center gap-2.5 text-[17px] font-medium tracking-tight ${FOCUS}`}
+              >
+                <Logo />
+                Vitalscope
+              </Link>
+              <p className="mt-2 max-w-72 text-pretty text-[15px] leading-[1.6] text-vz-ink-2">
+                Real-user monitoring for Core Web Vitals. A tiny open-source SDK
+                and a dashboard, built to stay out of the way.
+              </p>
+            </div>
+
+            <nav aria-label="Product">
+              <h2
+                className={`mb-1.5 text-xs font-medium uppercase tracking-[0.08em] text-vz-ink-2 ${MONO}`}
+              >
+                Product
+              </h2>
+              <ul>
+                <li>
+                  <FooterLink href="/demo" icon={<IconPlay />}>
+                    Live demo
+                  </FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="/login" icon={<IconSignIn />}>
+                    Sign in
+                  </FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="#how-to-use" icon={<IconBook />}>
+                    How to use it
+                  </FooterLink>
+                </li>
+              </ul>
+            </nav>
+
+            <nav aria-label="Developers">
+              <h2
+                className={`mb-1.5 text-xs font-medium uppercase tracking-[0.08em] text-vz-ink-2 ${MONO}`}
+              >
+                Developers
+              </h2>
+              <ul>
+                <li>
+                  <FooterLink href={NPM_URL} icon={<IconBox />}>
+                    npm package
+                  </FooterLink>
+                </li>
+                <li>
+                  <FooterLink href={GITHUB_URL} icon={<GitHubMark size={16} />}>
+                    Source on GitHub
+                  </FooterLink>
+                </li>
+                <li>
+                  <FooterLink
+                    href={`${GITHUB_URL}/blob/main/docs/decisions.md`}
+                    icon={<IconBook />}
+                  >
+                    Design decisions
+                  </FooterLink>
+                </li>
+              </ul>
+            </nav>
+
+            <nav aria-label="Project">
+              <h2
+                className={`mb-1.5 text-xs font-medium uppercase tracking-[0.08em] text-vz-ink-2 ${MONO}`}
+              >
+                Project
+              </h2>
+              <ul>
+                <li>
+                  <FooterLink href={`${GITHUB_URL}/issues`} icon={<IconBug />}>
+                    Report an issue
+                  </FooterLink>
+                </li>
+                <li>
+                  <FooterLink
+                    href={`${GITHUB_URL}/blob/main/LICENSE`}
+                    icon={<IconScale />}
+                  >
+                    MIT licence
+                  </FooterLink>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3 border-t border-vz-border pt-5 text-[13px] text-vz-ink-2 md:mt-10 md:flex-row md:items-center md:justify-between md:text-sm">
+            <p className="text-pretty">
+              © 2026 Praveen Raj · Built with Next.js, Supabase and web-vitals ·
+              The demo shows synthetic sample data.
+            </p>
+            <Link
+              href="#top"
+              className={`inline-flex min-h-11 items-center gap-1.5 text-vz-ink-2 hover:text-vz-ink ${FOCUS}`}
+            >
+              <IconArrowUp />
+              Back to top
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

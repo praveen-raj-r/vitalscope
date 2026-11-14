@@ -15,3 +15,65 @@ export function GitHubMark({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
+
+/** Small outline icons for buttons and links. Decorative: the visible text always says what the control does. */
+function Icon({ size = 16, children }: { size?: number; children: React.ReactNode }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      {children}
+    </svg>
+  );
+}
+
+export const IconPlay = (p: { size?: number }) => (
+  <Icon {...p}>
+    <circle cx="8" cy="8" r="6.25" />
+    <path d="M6.6 5.6v4.8L10.6 8z" fill="currentColor" stroke="none" />
+  </Icon>
+);
+export const IconSignIn = (p: { size?: number }) => (
+  <Icon {...p}>
+    <path d="M6 2.75H3.75a1 1 0 0 0-1 1v8.5a1 1 0 0 0 1 1H6" />
+    <path d="M6.5 8h7M10.75 5.25L13.5 8l-2.75 2.75" />
+  </Icon>
+);
+export const IconBook = (p: { size?: number }) => (
+  <Icon {...p}>
+    <path d="M2.5 3.5A1.5 1.5 0 0 1 4 2h8.5v10.5H4A1.5 1.5 0 0 0 2.5 14z" />
+    <path d="M2.5 14h10M5.5 5h4.5" />
+  </Icon>
+);
+export const IconBox = (p: { size?: number }) => (
+  <Icon {...p}>
+    <path d="M8 1.75l5.5 3v6.5l-5.5 3-5.5-3v-6.5z" />
+    <path d="M2.75 4.9L8 8l5.25-3.1M8 8v6" />
+  </Icon>
+);
+export const IconBug = (p: { size?: number }) => (
+  <Icon {...p}>
+    <circle cx="8" cy="8" r="6.25" />
+    <path d="M8 4.75V8.5M8 10.75v.1" />
+  </Icon>
+);
+export const IconScale = (p: { size?: number }) => (
+  <Icon {...p}>
+    <path d="M8 2.5v11M4.5 13.5h7M3 4.5h10" />
+    <path d="M3 4.5L1.5 8.5a1.6 1.6 0 0 0 3 0zM13 4.5L11.5 8.5a1.6 1.6 0 0 0 3 0z" />
+  </Icon>
+);
+export const IconArrowUp = (p: { size?: number }) => (
+  <Icon {...p}>
+    <path d="M8 13V3M3.75 7.25L8 3l4.25 4.25" />
+  </Icon>
+);

@@ -69,3 +69,8 @@
     animation: aurora-flow 9s linear infinite;
   }
 }
+
+/* The landing header is sticky, so in-page links (#install, #how-to-use) must stop below it. */
+html {
+  scroll-padding-top: 5rem;
+}
